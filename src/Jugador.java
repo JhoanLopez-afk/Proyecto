@@ -1,0 +1,86 @@
+public class Jugador {
+    private String nombreJugador;
+    private short vida;
+    private boolean turno;
+    private Fases fase;
+    private boolean ganador;
+    private Carta[] mano;
+    private Carta[] campo;
+    private Carta[] cementerio;
+    private Carta[] baraja;
+    public Jugador(String nombreJugador, short vida, boolean turno, boolean ganador, Carta[] mano, Carta[] campo, Carta[] cementerio, Carta[] baraja, Fases fase) {
+        this.nombreJugador = nombreJugador;
+        this.vida = vida;
+        this.turno = turno;
+        this.fase = fase;
+        this.ganador = ganador;
+        this.mano = mano;
+        this.campo = campo;
+        this.cementerio = cementerio;
+        this.baraja = baraja;
+    }
+    public enum Fases{
+    Una, Dos, Tres, Cuatro, Cinco, Seis,
+    Siete, Ocho, Nueve, Diez
+}
+    public String getNombre() {
+        return nombreJugador;
+    }
+    public void setNombre(String nombreJugador) {
+        this.nombreJugador = nombreJugador;
+    }
+    public short getVida() {
+        return vida;
+    }
+    public void setVida(short vida) {
+        this.vida = vida;
+    }
+    public String getNombreJugador() {
+        return nombreJugador;
+    }
+    public void setNombreJugador(String nombreJugador) {
+        this.nombreJugador = nombreJugador;
+    }
+    public boolean isTurno() {
+        return turno;
+    }
+    public void setTurno(boolean turno) {
+        this.turno = turno;
+    }
+    public boolean isGanador() {
+        return ganador;
+    }
+    public void setGanador(boolean ganador) {
+        this.ganador = ganador;
+    }
+    public Carta[] getMano() {
+        return mano;
+    }
+    public void setMano(Carta[] mano) {
+        this.mano = mano;
+    }
+    public Carta[] getCampo() {
+        return campo;
+    }
+    public void setCampo(Carta[] campo) {
+        this.campo = campo;
+    }
+    public Carta[] getCementerio() {
+        return cementerio;
+    }
+    public void setCementerio(Carta[] cementerio) {
+        this.cementerio = cementerio;
+    }
+    public Carta[] getBaraja() {
+        return baraja;
+    }
+    public void setBaraja(Carta[] baraja) {
+        this.baraja = baraja;
+    }
+    public Fases getFase() {
+        return fase;
+    }
+    public void setFase(Fases fase) {
+        this.fase = fase;
+    }
+}
