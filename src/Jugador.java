@@ -10,7 +10,7 @@ public class Jugador {
     private Carta[] baraja;
     public Jugador(String nombreJugador, short vida, boolean turno, boolean ganador, Carta[] mano, Carta[] campo, Carta[] cementerio, Carta[] baraja, Fases fase) {
         this.nombreJugador = nombreJugador;
-        this.vida = vida;
+        this.vida = 8000;   /// lo pondo por defecto, porque se supone que todos los jugadores inician con esta vida
         this.turno = turno;
         this.fase = fase;
         this.ganador = ganador;
@@ -23,12 +23,6 @@ public class Jugador {
     Una, Dos, Tres, Cuatro, Cinco, Seis,
     Siete, Ocho, Nueve, Diez
 }
-    public String getNombre() {
-        return nombreJugador;
-    }
-    public void setNombre(String nombreJugador) {
-        this.nombreJugador = nombreJugador;
-    }
     public short getVida() {
         return vida;
     }
