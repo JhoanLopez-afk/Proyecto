@@ -15,7 +15,7 @@ public class App {
             if(i<20){
                 barajaJugador1[i] = BarajaDeCartas.get(i);
             }else{
-                barajaJugador2[i] = BarajaDeCartas.get(i);
+                barajaJugador2[i-20] = BarajaDeCartas.get(i);
             }
         }
 
@@ -26,11 +26,15 @@ public class App {
         System.out.println("Combatiente 1: "+Jugador1.getNombreJugador()+" tiene su baraja lista.");
         System.out.println("Combatiente 2: "+Jugador2.getNombreJugador()+" tiene su baraja lista.");
 
-        /*System.out.println("Creen sus manos iniciales: ");
-        for(int i = 0; i < 5; i++){
-            
-        }*/
+        System.out.println(" ");
+        System.out.println(" ");
 
+        System.out.println("Creen sus manos iniciales: ");
+        System.out.println(" ");
+        for(int i = 0; i < 5; i++){
+            Jugador1.robarCarta();
+            Jugador2.robarCarta();
+        }
     }
 
     public static List<Carta> generarBaraja() {
@@ -58,7 +62,7 @@ public class App {
         NombreMagia NM = NombreMagia.values()[new Random().nextInt(NombreMagia.values().length)];
 
 
-        mazoCompleto.add(new Magia(NM + "i", TipoCarta.MAGICA, 
+        mazoCompleto.add(new Magia(NM+" "+(i+1), TipoCarta.MAGICA, 
                          false, "Efecto básico", Estado.BARAJA));
     }
 
