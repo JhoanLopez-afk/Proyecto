@@ -8,21 +8,20 @@ public class Jugador {
     private Carta[] campo;
     private Carta[] cementerio;
     private Carta[] baraja;
-    public Jugador(String nombreJugador, short vida, boolean turno, boolean ganador, Carta[] mano, Carta[] campo, Carta[] cementerio, Carta[] baraja, Fases fase) {
+    public Jugador(String nombreJugador, Carta[] barajaInicial) {
         this.nombreJugador = nombreJugador;
         this.vida = 8000;   /// lo pondo por defecto, porque se supone que todos los jugadores inician con esta vida
-        this.turno = turno;
-        this.fase = fase;
-        this.ganador = ganador;
-        this.mano = mano;
-        this.campo = campo;
-        this.cementerio = cementerio;
-        this.baraja = baraja;
+        this.baraja = barajaInicial;
+        this.mano = new Carta[10];
+        this.campo = new Carta[5];
+        this.cementerio = new Carta[20];
+        this.ganador = false;
     }
     public enum Fases{
     Una, Dos, Tres, Cuatro, Cinco, Seis,
     Siete, Ocho, Nueve, Diez
 }
+    
     public short getVida() {
         return vida;
     }
@@ -65,16 +64,16 @@ public class Jugador {
     public void setCementerio(Carta[] cementerio) {
         this.cementerio = cementerio;
     }
-    public Carta[] getBaraja() {
-        return baraja;
-    }
-    public void setBaraja(Carta[] baraja) {
-        this.baraja = baraja;
-    }
     public Fases getFase() {
         return fase;
     }
     public void setFase(Fases fase) {
         this.fase = fase;
+    }
+    public Carta[] getBaraja() {
+        return baraja;
+    }
+    public void setBaraja(Carta[] baraja) {
+        this.baraja = baraja;
     }
 }

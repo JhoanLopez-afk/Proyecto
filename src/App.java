@@ -8,14 +8,28 @@ public class App {
 
         List<Carta> BarajaDeCartas = generarBaraja();
 
+        Carta[] barajaJugador1 = new Carta[20];
+        Carta[] barajaJugador2 = new Carta[20];
         
+        for(int i = 0; i < 40; i++){
+            if(i<20){
+                barajaJugador1[i] = BarajaDeCartas.get(i);
+            }else{
+                barajaJugador2[i] = BarajaDeCartas.get(i);
+            }
+        }
 
+        Jugador Jugador1 = new Jugador("Quevedo", barajaJugador1);
+        Jugador Jugador2 = new Jugador("Camilo", barajaJugador2);
 
+        System.out.println("-----INICIA LA PELEA!!!-----");
+        System.out.println("Combatiente 1: "+Jugador1.getNombreJugador()+" tiene su baraja lista.");
+        System.out.println("Combatiente 2: "+Jugador2.getNombreJugador()+" tiene su baraja lista.");
 
-
-
-
-
+        /*System.out.println("Creen sus manos iniciales: ");
+        for(int i = 0; i < 5; i++){
+            
+        }*/
 
     }
 
