@@ -33,4 +33,9 @@ public void setEstrellas(Estrellas estrellas) {
 public Estrellas getEstrellas() {
     return estrellas;
 }
+
+@Override
+public void usar(Jugador jugador, Jugador oponente) {
+    ;
+}
 }
