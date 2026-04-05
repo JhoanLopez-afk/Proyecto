@@ -10,16 +10,16 @@ public class Jugador {
     private ArrayList<Carta>campo;
     private ArrayList<Carta> cementerio;
     private ArrayList<Carta> baraja;
-    public Jugador(String nombreJugador, short vida, boolean turno, boolean ganador, Carta[] mano, Carta[] campo, Carta[] cementerio, Carta[] baraja, Fases fase) {
+    public Jugador(String nombreJugador) {
         this.nombreJugador = nombreJugador;
         this.vida = 8000;   /// lo pongo por defecto, porque se supone que todos los jugadores inician con esta vida
-        this.turno = turno;
-        this.fase = fase;
-        this.ganador = ganador;
-        this.mano = mano;
-        this.campo = campo;
-        this.cementerio = cementerio;
-        this.baraja = baraja;
+        this.turno = false;
+        this.fase = Fases.ROBO;
+        this.ganador = false;
+        this.mano = new ArrayList<>();
+        this.campo = new ArrayList<>();
+        this.cementerio = new ArrayList<>();
+        this.baraja = new ArrayList<>();
     }
     public enum Fases{
     ROBO, PRINCIPAL , BATALLA, PRINCIPAL2,FINAL
