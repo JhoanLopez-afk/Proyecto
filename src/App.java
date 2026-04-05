@@ -1,10 +1,23 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class App {
     public static void main(String[] args) throws Exception {
-        Mounstro carta1 = new Mounstro("Carta1", (short) 3000, (short) 2000, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Cinco, true, "Efecto de la carta1", Estado.MANO);
-        Magia carta2 = new Magia("Carta2", TipoCarta.MAGICA, false , "Efecto de la carta2", Estado.CEMENTERIO);
+       ArrayList<Carta> cartas = FabricaCartas.crearCartas();
+       //Esto se utiliza para reorganizar el arreglo aleatoriamente
+       Collections.shuffle(cartas);
 
-        System.out.println(carta1.getNombre() + " - " + carta1.getTipo() + " - " + carta1.isVisible() + " - " + carta1.getEstrellas() + " - " + carta1.getAtaque() + " - " + carta1.getDefensa() + " - " + carta1.getEfecto() + " - " + carta1.getEstado());
-        System.out.println(carta2.getNombre() + " - " + carta2.getTipo() + " - " + carta2.isVisible() + " - " + carta2.getEfecto() + " - " + carta2.getEstado());
+       Jugador j1 = new Jugador("Quevedo");
+       Jugador j2 = new Jugador("Agapito");
+
+       for (int i = 0; i < 20; i++){
+        j1.agregarCartaABaraja(cartas.get(i));
+       }
+       for (int i = 20; i < 40; i++){
+        j2.agregarCartaABaraja(cartas.get(i));
+       }
+
+
 
     }
 } 

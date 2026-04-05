@@ -48,28 +48,28 @@ public class Jugador {
     public void setGanador(boolean ganador) {
         this.ganador = ganador;
     }
-    public Carta[] getMano() {
+    public ArrayList<Carta> getMano() {
         return mano;
     }
-    public void setMano(Carta[] mano) {
+    public void setMano(ArrayList<Carta> mano) {
         this.mano = mano;
     }
-    public Carta[] getCampo() {
+    public ArrayList<Carta> getCampo() {
         return campo;
     }
-    public void setCampo(Carta[] campo) {
+    public void setCampo(ArrayList<Carta> campo) {
         this.campo = campo;
     }
-    public Carta[] getCementerio() {
+    public  getCementerio() {
         return cementerio;
     }
-    public void setCementerio(Carta[] cementerio) {
+    public void setCementerio(ArrayList<Carta>cementerio) {
         this.cementerio = cementerio;
     }
-    public Carta[] getBaraja() {
+    public ArrayList<Carta> getBaraja() {
         return baraja;
     }
-    public void setBaraja(Carta[] baraja) {
+    public void setBaraja(ArrayList<Carta> baraja) {
         this.baraja = baraja;
     }
     public Fases getFase() {
@@ -78,4 +78,8 @@ public class Jugador {
     public void setFase(Fases fase) {
         this.fase = fase;
     }
+    public void agregarCartaABaraja(Carta carta){
+        baraja.add(carta);
+    }
+
 }
