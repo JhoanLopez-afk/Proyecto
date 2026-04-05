@@ -48,4 +48,7 @@ public Estado getEstado() {
 public void setEstado(Estado estado) {
     this.estado = estado;
 }
+
+//método usar
+public abstract void usar(Jugador jugador, Jugador oponente);
 }
