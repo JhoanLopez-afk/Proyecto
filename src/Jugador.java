@@ -1,13 +1,15 @@
+import java.util.ArrayList;
+
 public class Jugador {
     private String nombreJugador;
     private short vida;
     private boolean turno;
     private Fases fase;
     private boolean ganador;
-    private Carta[] mano;
-    private Carta[] campo;
-    private Carta[] cementerio;
-    private Carta[] baraja;
+    private ArrayList<Carta> mano;
+    private ArrayList<Carta>campo;
+    private ArrayList<Carta> cementerio;
+    private ArrayList<Carta> baraja;
     public Jugador(String nombreJugador, short vida, boolean turno, boolean ganador, Carta[] mano, Carta[] campo, Carta[] cementerio, Carta[] baraja, Fases fase) {
         this.nombreJugador = nombreJugador;
         this.vida = 8000;   /// lo pongo por defecto, porque se supone que todos los jugadores inician con esta vida
@@ -20,7 +22,7 @@ public class Jugador {
         this.baraja = baraja;
     }
     public enum Fases{
-    Robo, Principal , Batalla, Principal2, Final
+    ROBO, PRINCIPAL , BATALLA, PRINCIPAL2,FINAL
 }
     public short getVida() {
         return vida;
