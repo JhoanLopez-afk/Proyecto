@@ -60,11 +60,8 @@ public class Jugador {
     public void setCampo(ArrayList<Carta> campo) {
         this.campo = campo;
     }
-    public  getCementerio() {
+    public ArrayList<Carta> getCementerio() {
         return cementerio;
-    }
-    public void setCementerio(ArrayList<Carta>cementerio) {
-        this.cementerio = cementerio;
     }
     public ArrayList<Carta> getBaraja() {
         return baraja;
