@@ -3,6 +3,9 @@ import java.util.Collections;
 
 public class App {
     public static void main(String[] args) throws Exception {
+
+     System.out.println(" Bienvenido a Yu-Gi-Oh! ");
+
        ArrayList<Carta> cartas = FabricaCartas.crearCartas();
        //Esto se utiliza para reorganizar el arreglo aleatoriamente
        Collections.shuffle(cartas);
@@ -16,8 +19,9 @@ public class App {
        for (int i = 20; i < 40; i++){
         j2.agregarCartaABaraja(cartas.get(i));
        }
-
-
-
+         for (int i = 0; i < 5; i++){
+          j1.robarCarta();
+          j2.robarCarta();
+         }
     }
 } 
