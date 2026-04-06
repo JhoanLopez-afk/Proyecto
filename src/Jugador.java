@@ -75,8 +75,20 @@ public class Jugador {
     public void setFase(Fases fase) {
         this.fase = fase;
     }
-    public void agregarCartaABaraja(Carta carta){
+    public void agregarCartaABaraja(Carta carta) {
         baraja.add(carta);
     }
-
+    public boolean robarCarta() {
+        if (baraja.isEmpty()) return false;
+        Carta carta = baraja.remove(0);
+        carta.setEstado(Estado.MANO);
+        mano.add(carta);
+        return true;
+    }
+    public void mostrarMano() {
+    System.out.println("Mano de " + nombreJugador + ":");
+    for (int i = 0; i < mano.size(); i++) {
+        System.out.println(i + ": " + mano.get(i).getNombre());
+    }
+}
 }
