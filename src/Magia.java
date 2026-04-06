@@ -3,7 +3,7 @@ public class Magia extends Carta implements Activable {
     public Magia(String nombre, TipoCarta tipo, boolean visible, String efecto, Estado estado) {
         super(nombre, tipo, visible, efecto, estado);
     }
- 
+
 public void activar(Jugador jugador, Jugador oponente) {
 
     Scanner sc = new Scanner(System.in);
