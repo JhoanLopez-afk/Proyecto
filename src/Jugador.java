@@ -60,7 +60,7 @@ public class Jugador {
     public void setCampo(ArrayList<Carta> campo) {
         this.campo = campo;
     }
-    public  getCementerio() {
+    public ArrayList<Carta> getCementerio() {
         return cementerio;
     }
     public void setCementerio(ArrayList<Carta>cementerio) {
@@ -78,8 +78,12 @@ public class Jugador {
     public void setFase(Fases fase) {
         this.fase = fase;
     }
+
+    
     public void agregarCartaABaraja(Carta carta){
         baraja.add(carta);
     }
+
+    
 
 }
