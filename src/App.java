@@ -21,11 +21,9 @@ public class App {
 
             if (turnoDe == 1) {
                 System.out.println(">> Turno de " + Jugador1.getNombreJugador()+"\n");
-                System.out.println("¿Deseas robar una carta? 1.Si, 2.No");
-                byte eleccion = teclado.nextByte();
-                if(eleccion==1){
-                    Jugador1.robarCarta();
-                }
+                
+                Jugador1.robarCarta();
+                
                 
                 // --- ELIGES PARA JUGADOR 1 ---
                 System.out.println("Mano: ");
@@ -56,11 +54,10 @@ public class App {
 
             } else {
                 System.out.println(">> Turno de " + Jugador2.getNombreJugador()+"\n");
-                System.out.println("¿Deseas robar una carta? 1.Si, 2.No");
-                byte eleccion = teclado.nextByte();
-                if(eleccion==1){
-                    Jugador2.robarCarta();
-                }
+                
+                
+                Jugador2.robarCarta();
+                
                 // --- ELIGES PARA JUGADOR 2 ---
                 System.out.println("Mano: ");
                 for(int i=0; i < Jugador2.getMano().length; i++) {
