@@ -14,7 +14,7 @@ public class FabricaCartas {
         cartas.add(new Mounstro("Asesino de espada", (short) 1450, (short) 1500, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Cinco, true, "Un motor letal de destrucción que empuña dos hojas bien afiliadas", Estado.BARAJA));
         cartas.add(new Mounstro("Brazo Derecho del prohibido", (short) 200, (short) 300, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Una, true, "Un brazo derecho prohibido, sellado mágicamente. Quienquiera que rompa este sello conocerá el poder infinito", Estado.BARAJA));
         cartas.add(new Mounstro("Brazo Izquierdo del prohibido", (short) 200, (short) 300, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Una, true, "Un brazo izquierdo prohibido, sellado mágicamente. Quienquiera que rompa este sello conocerá el poder infinito", Estado.BARAJA));
-        cartas.add(new Mounstro("Pierna izquierda del prohibido", (short) 200, (short) 300, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Una, true, "Una pierna izquierda prohibida, sellada mágicamente. Quienquiera que rompa este sello conocerá el poder infinito", Estado.BARAJA));
+        cartas.add(new Mounstro("Pierna izquierda del prohibido", (short) 200, (short) 300, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Una, true, "Una pierna izquierda prohibida, sellada mágicamente. Quienquiera que rompa este selle conocerá el poder infinito", Estado.BARAJA));
         cartas.add(new Mounstro("Pierna Derecha del prohibido", (short) 200, (short) 300, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Una, true, "Una pierna derecha prohibida, sellada mágicamente. Quienquiera que rompa este sello conocerá el poder infinito", Estado.BARAJA));
         cartas.add(new Mounstro("Bebé Dragón", (short) 1200, (short) 700, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Tres, true, "Mucho más que sólo un niño, este dragón está dotado de un poder sin descubrir", Estado.BARAJA));
         cartas.add(new Mounstro("Devorador de aire", (short) 2100, (short) 1600, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Seis, true, "Un monstruo que se alimenta de oxígeno, ahogando a los que están cerca", Estado.BARAJA));
@@ -40,14 +40,12 @@ public class FabricaCartas {
         cartas.add(new Magia("Agujero Oscuro",TipoCarta.MAGICA,true,"Destruye todos los monstruos en el campo",Estado.BARAJA));
         cartas.add(new Magia("Tifon del espacio Mistico",TipoCarta.MAGICA,true,"Selecciona 1 magica/trampa  en el campo, destruye ese objetivo.",Estado.BARAJA));
         cartas.add(new Magia("Caridad elegante",TipoCarta.MAGICA,true,"Roba tres cartas y manda 2 al cementerio",Estado.BARAJA));
+        cartas.add(new Magia("Fuerza de Resabastecimiento",TipoCarta.MAGICA,true,"Roba 3 cartas y descartas 2 cartas de tu mano al Cementerio",Estado.BARAJA));
         cartas.add(new Magia("Dian Keto, el Señora de la Curación",TipoCarta.MAGICA,true,"Aumenta tus Life Points en 1000 puntos.",Estado.BARAJA));
         cartas.add(new Magia("Tormenta Fuerte",TipoCarta.MAGICA,true,"Destruye todas las cartas Magicas y trampa en el campo",Estado.BARAJA));
         cartas.add(new Magia("Reproduccion de hechizo",TipoCarta.MAGICA,true,"Manda al cementerio 2 Mágicas en tu mano",Estado.BARAJA));
         cartas.add(new Magia("Intercambio",TipoCarta.MAGICA,true,"Intercambian sus cartas",Estado.BARAJA));
         cartas.add(new Magia("Hinotama",TipoCarta.MAGICA,true,"Inflige 500 puntos de daño a tu adversario.",Estado.BARAJA));
         return cartas;
-
     }
-    
-    
 }
