@@ -36,6 +36,8 @@ public Estrellas getEstrellas() {
 
 @Override
 public void usar(Jugador jugador, Jugador oponente) {
-    ;
+         jugador.getCampo().add(this);
+        setEstado(Estado.CAMPO);
+        System.out.println("Se invoca " + getNombre());
 }
 }
