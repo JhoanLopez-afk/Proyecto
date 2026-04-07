@@ -5,224 +5,291 @@ public class Jugador {
     private Fases fase;
     private boolean ganador;
     private Carta[] mano;
-    private Carta[] campo;
+    private Carta[] campoMonstruos;
+    private Carta[] campoMagias;
     private Carta[] cementerio;
     private Carta[] baraja;
+
+
+    private boolean yaInvoco;
+
     public Jugador(String nombreJugador, Carta[] barajaInicial) {
         this.nombreJugador = nombreJugador;
-        this.vida = 8000;   /// lo pongo por defecto, porque se supone que todos los jugadores inician con esta vida
+        this.vida = 8000;
         this.baraja = barajaInicial;
         this.mano = new Carta[6];
-        this.campo = new Carta[5];
+        this.campoMonstruos = new Carta[5];
+        this.campoMagias = new Carta[5];
         this.cementerio = new Carta[20];
         this.ganador = false;
+        this.yaInvoco = false;
     }
-    public enum Fases{
-    ROBO, PRINCIPAL , BATALLA, PRINCIPAL2,FINAL
+
+    public enum Fases {
+        ROBO, PRINCIPAL, BATALLA, FINAL
+    }
+
+public short getVida() {
+    return vida;
 }
-    public short getVida() {
-        return vida;
+
+public void setVida(short vida) {
+    this.vida = vida;
+}
+
+public String getNombreJugador() {
+    return nombreJugador;
+}
+
+public boolean isGanador() {
+    return ganador;
+}
+
+public void setGanador(boolean ganador) {
+    this.ganador = ganador;
+}
+
+public Carta[] getMano() {
+    return mano;
+}
+
+public Carta[] getCampo() {
+    return campoMonstruos;
+}
+
+public Carta[] getCementerio() {
+    return cementerio;
+}
+
+public Carta[] getBaraja() {
+    return baraja;
+}
+
+
+    public void resetTurno() {
+        yaInvoco = false;
     }
-    public void setVida(short vida) {
-        this.vida = vida;
+
+    public boolean tieneMonstruos() {
+        for (int i = 0; i < campoMonstruos.length; i++) {
+            if (campoMonstruos[i] != null) return true;
+        }
+        return false;
     }
-    public String getNombreJugador() {
-        return nombreJugador;
-    }
-    public void setNombreJugador(String nombreJugador) {
-        this.nombreJugador = nombreJugador;
-    }
-    public boolean isTurno() {
-        return turno;
-    }
-    public void setTurno(boolean turno) {
-        this.turno = turno;
-    }
-    public boolean isGanador() {
-        return ganador;
-    }
-    public void setGanador(boolean ganador) {
-        this.ganador = ganador;
-    }
-    public Carta[] getMano() {
-        return mano;
-    }
-    public void setMano(Carta[] mano) {
-        this.mano = mano;
-    }
-    public Carta[] getCampo() {
-        return campo;
-    }
-    public void setCampo(Carta[] campo) {
-        this.campo = campo;
-    }
-    public Carta[] getCementerio() {
-        return cementerio;
-    }
-    public void setCementerio(Carta[] cementerio) {
-        this.cementerio = cementerio;
-    }
-    public Fases getFase() {
-        return fase;
-    }
-    public void setFase(Fases fase) {
-        this.fase = fase;
-    }
-    public Carta[] getBaraja() {
-        return baraja;
-    }
-    public void setBaraja(Carta[] baraja) {
-        this.baraja = baraja;
-    }
-    public void robarCarta(){
-        Carta CartaNueva = null;
-        int indice = 0;
-        for(int i = 0; i < 20; i++){
-            if(this.baraja[i] != null){
-                CartaNueva = this.baraja[i];
+
+ 
+    public void robarCarta() {
+        Carta cartaNueva = null;
+        int indice = -1;
+
+        for (int i = 0; i < baraja.length; i++) {
+            if (baraja[i] != null) {
+                cartaNueva = baraja[i];
                 indice = i;
                 break;
             }
         }
-        if(CartaNueva == null){
-            System.out.println("La baraja de "+getNombreJugador()+" ya se quedó vacia");
-            setGanador(false);
+
+        if (cartaNueva == null) {
+            System.out.println(nombreJugador + " no puede robar, por ende perdiste");
+            ganador = false;
             return;
         }
-        boolean r = false;
-        for (int i = 0; i < getMano().length; i++) {
-            if (this.mano[i] == null) {
-                this.mano[i] = CartaNueva;
-                this.baraja[indice] = null;
-            
-                this.mano[i].setEstado(Estado.MANO); 
-                
-                System.out.println(getNombreJugador() + " robó: " + CartaNueva.getNombre());
-                r = true;
-                break;
+
+        for (int i = 0; i < mano.length; i++) {
+            if (mano[i] == null) {
+                mano[i] = cartaNueva;
+                baraja[indice] = null;
+                cartaNueva.setEstado(Estado.MANO);
+                System.out.println(nombreJugador + " robó: " + cartaNueva.getNombre());
+                return;
             }
         }
-        if(r==false){
-            System.out.println(getNombreJugador()+" no pudo robar la carta, probablemente su mano esté lleno");
+
+        System.out.println("Mano llena");
+    }
+
+    public void mostrarMano() {
+        System.out.println("Mano de " + nombreJugador);
+        for (int i = 0; i < mano.length; i++) {
+            if (mano[i] != null) {
+                System.out.println(i + ". " + mano[i].getNombre());
+            }
         }
     }
-    public void mostrarMano(){
-        System.out.println("----------Mano de "+getNombreJugador()+"----------");
-        boolean f = true;
-            for(int i = 0; i < this.mano.length; i++){
-                Carta j = this.mano[i];
-                if(j!=null){
-                    if(j instanceof Mounstro){
-                        Mounstro m = (Mounstro) j;
-                        System.out.println(i+". "+j.getNombre()+" ATK: "+m.getAtaque()+" DEF: "+m.getDefensa());
-                        f=false;
-                    }else{
-                        System.out.println(i+". "+j.getNombre());
-                        f=false;
-                    }
-                }
-            }
-        if(f){System.out.println("===== La mano está vacia =====");}
-    }
-    public void invocarMonstruo(int indice){
-        if(indice<0 || indice>=(mano.length) || mano[indice] == null){
-            System.out.println("Posicion invalida");
+
+   
+    public void invocarMonstruo(int indice) {
+
+        if (yaInvoco) {
+            System.out.println("Ya invocaste este turno");
             return;
         }
-        Carta c = mano[indice];
-        boolean espacio = true;
-        for (int i = 0; i < campo.length; i++) {
-            if (campo[i] == null) {
-                campo[i] = c;
-                campo[i].setEstado(Estado.CAMPO);
+
+        if (indice < 0 || indice >= mano.length || mano[indice] == null) {
+            System.out.println("Posición inválida");
+            return;
+        }
+
+        if (!(mano[indice] instanceof Mounstro)) {
+            System.out.println("No es un monstruo");
+            return;
+        }
+
+        for (int i = 0; i < campoMonstruos.length; i++) {
+            if (campoMonstruos[i] == null) {
+                campoMonstruos[i] = mano[indice];
                 mano[indice] = null;
-                espacio=false;
-                System.out.println("El jugador "+getNombreJugador()+" a invocado "+c.getNombre());
-                break;
+                yaInvoco = true;
+                System.out.println("Invocaste: " + campoMonstruos[i].getNombre());
+                return;
             }
         }
-        if(espacio){
-            System.out.println("No se a encontrado ningun espacio disponible");
-        }
+
+        System.out.println("Campo lleno");
     }
-    public void mostrarCampo(){
-        System.out.println("----------Campo de "+getNombreJugador()+"----------");
-        boolean f = true;
-            for(int i = 0; i < campo.length; i++){
-                Carta j = campo[i];
-                if(j!=null){
-                    if(j instanceof Mounstro){
-                        Mounstro m = (Mounstro) j;
-                        System.out.println(i+". [ "+j.getNombre()+" ]");
-                        f=false;
-                    }else{
-                        System.out.println(i+". [ "+j.getNombre()+" ] (Magia)");
-                        f=false;
-                    }
-                }
+
+ public void mostrarCampo() {
+    System.out.println("=== MONSTRUOS ===");
+
+    boolean vacio = true;
+
+    for (int i = 0; i < campoMonstruos.length; i++) {
+        if (campoMonstruos[i] != null) {
+
+            if (campoMonstruos[i] instanceof Mounstro) {
+                Mounstro m = (Mounstro) campoMonstruos[i];
+
+                System.out.println(i + ". [ " + m.getNombre() + " ]");
+                System.out.println("    ATK: " + m.getAtaque());
+                System.out.println("    DEF: " + m.getDefensa());
             }
-        if(f){
-            System.out.println("----------El campo está vacio----------");
-        }
-    }
-    public void atacar(byte miInd, Jugador oponente, byte contraInd){
-        if (this.campo[miInd] == null ) {
-            System.out.println("No existe un monstro el cual ataque");
-            return;
-        }
-        Mounstro miM = (Mounstro) this.campo[miInd];
-        Mounstro suM = (Mounstro) oponente.getCampo()[contraInd];
-        System.out.println(" ");
-        if(suM == null){
-            System.out.println("Ataque Directo!!!");
-            oponente.setVida((short)(oponente.getVida()-miM.getAtaque()));
-        }else{
-            System.out.println(miM.getNombre()+" ( ATK-"+miM.getAtaque()+" ) ATACA A "+suM.getNombre()+" ( DEF-"+suM.getDefensa()+" )");
-            if(miM.getAtaque()>suM.getDefensa()){
-                short resultado = (short)(miM.getAtaque() - suM.getDefensa());
-                oponente.setVida((short)((oponente.getVida())-resultado));
-                oponente.muereMounstro(contraInd);
-            }else if(miM.getAtaque()<suM.getDefensa()){
-                short resultado = (short)(suM.getDefensa() - miM.getAtaque());
-                setVida((short)((getVida())-resultado));
-                muereMounstro(miInd);
-            }
+
+            vacio = false;
         }
     }
 
-    public void muereMounstro(int indice){
-        if(indice<0 || indice>=(campo.length) || campo[indice] == null){
-            System.out.println("Posicion invalida");
-            return;
+    if (vacio) {
+        System.out.println("No hay monstruos en el campo");
+    }
+
+    System.out.println("=== MAGICAS ===");
+
+    vacio = true;
+
+    for (int i = 0; i < campoMagias.length; i++) {
+        if (campoMagias[i] != null) {
+            System.out.println(i + ". [ " + campoMagias[i].getNombre() + " ]");
+            vacio = false;
         }
-        Carta c = getCampo()[indice];
-        boolean espacio = true;
+    }
+
+    if (vacio) {
+        System.out.println("No hay mágicas en el campo");
+    }
+}
+
+    public void usarMagia(int indice, Jugador oponente) {
+
+    if (indice < 0 || indice >= mano.length || mano[indice] == null) {
+        System.out.println("Posición inválida");
+        return;
+    }
+
+    if (!(mano[indice] instanceof Magia)) {
+        System.out.println("No es mágica");
+        return;
+    }
+
+
+    Carta magia = mano[indice];
+    mano[indice] = null;
+
+    magia.usar(this, oponente);
+
+
+    for (int i = 0; i < cementerio.length; i++) {
+        if (cementerio[i] == null) {
+            cementerio[i] = magia;
+            magia.setEstado(Estado.CEMENTERIO);
+            break;
+        }
+    }
+}
+
+   
+public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo) {
+
+    if (indiceMiMounstro < 0 || indiceMiMounstro >= campoMonstruos.length || this.campoMonstruos[indiceMiMounstro] == null) {
+        System.out.println("No existe un monstruo en esa posición para atacar");
+        return;
+    }
+
+    if (!(this.campoMonstruos[indiceMiMounstro] instanceof Mounstro)) {
+        System.out.println("La carta en esa posición no es un monstruo");
+        return;
+    }
+
+    Mounstro mounstroAtacante = (Mounstro) this.campoMonstruos[indiceMiMounstro];
+
+    System.out.println(" -CAMPO ANTES DEL ATAQUE -");
+    System.out.println("---- " + this.getNombreJugador() + " ----");
+    this.mostrarCampo();
+    System.out.println("---- " + oponente.getNombreJugador() + " ----");
+    oponente.mostrarCampo();
+
+    if (oponente.tieneMonstruos() && indiceObjetivo == -1) {
+        System.out.println("No puedes hacer ataque directo si el rival tiene monstruos");
+        return;
+    }
+
+    if (indiceObjetivo == -1 || !oponente.tieneMonstruos()) {
+        System.out.println(" Ataque directo " + mounstroAtacante.getNombre() + " ataca con " + mounstroAtacante.getAtaque());
+        oponente.setVida((short) (oponente.getVida() - mounstroAtacante.getAtaque()));
+        System.out.println(oponente.getNombreJugador() + " pierde " + mounstroAtacante.getAtaque() + " LP");
+        return;
+    }
+
+    if (indiceObjetivo < 0 || indiceObjetivo >= oponente.getCampo().length || oponente.getCampo()[indiceObjetivo] == null) {
+        System.out.println("No existe un monstruo rival en esa posición");
+        return;
+    }
+
+    Mounstro MounstroDefensor = (Mounstro) oponente.getCampo()[indiceObjetivo];
+
+    System.out.println(mounstroAtacante.getNombre() + " (ATK " + mounstroAtacante.getAtaque() + ") ATACA A " + MounstroDefensor.getNombre() + " (ATK " + MounstroDefensor.getAtaque() + ")");
+
+    if (mounstroAtacante.getAtaque() > MounstroDefensor.getAtaque()) {
+
+        short daño = (short) (mounstroAtacante.getAtaque() - MounstroDefensor.getAtaque());
+        oponente.setVida((short) (oponente.getVida() - daño));
+        System.out.println(oponente.getNombreJugador() + " pierde " + daño + " LP");
+        oponente.muereMounstro(indiceObjetivo);
+
+    } else if (mounstroAtacante.getAtaque() < MounstroDefensor.getAtaque()) {
+
+        short daño = (short) (MounstroDefensor.getAtaque() - mounstroAtacante.getAtaque());
+        setVida((short) (getVida() - daño));
+        System.out.println(getNombreJugador() + " pierde " + daño + " LP");
+        muereMounstro(indiceMiMounstro);
+
+    } else {
+
+        System.out.println("¡Empate! Ambos monstruos son destruidos");
+        muereMounstro(indiceMiMounstro);
+        oponente.muereMounstro(indiceObjetivo);
+    }
+}
+
+    public void muereMounstro(int indice) {
+        Carta c = campoMonstruos[indice];
+        campoMonstruos[indice] = null;
+
         for (int i = 0; i < cementerio.length; i++) {
-            if (getCementerio()[i] == null) {
-                System.out.println("El monstruo "+c.getNombre()+" fue destruido");
-                getCementerio()[i] = c;
-                getCementerio()[i].setEstado(Estado.CEMENTERIO);
-                getCampo()[indice] = null;
-                espacio=false;
-                break;
+            if (cementerio[i] == null) {
+                cementerio[i] = c;
+                return;
             }
         }
-        if(espacio){
-            System.out.println("No se a encontrado ningun espacio disponible");
-        }
-    }
-
-    public void usarMagia(int indice, Jugador oponente){
-        if(indice<0 || indice>=(mano.length) || mano[indice] == null){
-            System.out.println("Posicion invalida");
-            return;
-        }
-        Carta c = mano[indice];
-        if(!(c instanceof Magia)){
-            System.out.println("Esa carta no es una magica");
-            return;
-        }
-        c.usar(this, oponente);
-        mano[indice] = null;
     }
 }
