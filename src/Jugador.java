@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Jugador {
     private String nombreJugador;
     private short vida;
@@ -172,23 +174,34 @@ public class Jugador {
             System.out.println("No existe un monstro el cual ataque");
             return;
         }
-        Mounstro miM = (Mounstro) this.campo[miInd];
-        Mounstro suM = (Mounstro) oponente.getCampo()[contraInd];
-        System.out.println(" ");
-        if(suM == null){
-            System.out.println("Ataque Directo!!!");
-            oponente.setVida((short)(oponente.getVida()-miM.getAtaque()));
-        }else{
-            System.out.println(miM.getNombre()+" ( ATK-"+miM.getAtaque()+" ) ATACA A "+suM.getNombre()+" ( DEF-"+suM.getDefensa()+" )");
-            if(miM.getAtaque()>suM.getDefensa()){
-                short resultado = (short)(miM.getAtaque() - suM.getDefensa());
-                oponente.setVida((short)((oponente.getVida())-resultado));
+        if (this.campo[miInd] instanceof Mounstro){
+            Mounstro miM = (Mounstro) this.campo[miInd];
+            if(oponente.getCampo()[contraInd] instanceof Magia){
+                System.out.println("Has atacado una carta magica, se destruye sin causar daño");
                 oponente.muereMounstro(contraInd);
-            }else if(miM.getAtaque()<suM.getDefensa()){
-                short resultado = (short)(suM.getDefensa() - miM.getAtaque());
-                setVida((short)((getVida())-resultado));
-                muereMounstro(miInd);
+            }else{
+                Mounstro suM = (Mounstro) oponente.getCampo()[contraInd];
+                System.out.println(" ");
+                if(suM == null){
+                    System.out.println("Ataque Directo!!!");
+                    oponente.setVida((short)(oponente.getVida()-miM.getAtaque()));
+                }else{
+                    System.out.println(miM.getNombre()+" ( ATK-"+miM.getAtaque()+" ) ATACA A "+suM.getNombre()+" ( DEF-"+suM.getDefensa()+" )");
+                    if(miM.getAtaque()>suM.getDefensa()){
+                        short resultado = (short)(miM.getAtaque() - suM.getDefensa());
+                        oponente.setVida((short)((oponente.getVida())-resultado));
+                        oponente.muereMounstro(contraInd);
+                    }else if(miM.getAtaque()<suM.getDefensa()){
+                        short resultado = (short)(suM.getDefensa() - miM.getAtaque());
+                        setVida((short)((getVida())-resultado));
+                        muereMounstro(miInd);
+                    }
+                }
             }
+        }else{
+            Magia mag = (Magia)this.campo[miInd];
+            mag.ejecutarEfecto(this, miInd, oponente, contraInd);
+            this.muereMounstro(miInd);
         }
     }
 
@@ -211,6 +224,27 @@ public class Jugador {
         }
         if(espacio){
             System.out.println("No se a encontrado ningun espacio disponible");
+        }
+    }
+
+    public void invocarDesdeCementerio(){
+        Jugador yo=this;
+        Scanner teclado = new Scanner(System.in);
+        for(int i=0;i<yo.getCementerio().length;i++){
+            if(yo.getCementerio()[i]!=null){
+                System.out.println(i+". "+yo.getCementerio()[i].getNombre());
+            }
+        }
+        System.out.println("Indice del mounstro que desea revivir: ");
+        byte ind = teclado.nextByte();
+        Carta r=yo.getCementerio()[ind];
+        yo.getCementerio()[ind]=null;
+        for(int i=0;i<yo.getMano().length;i++){
+            if(yo.getMano()[i]==null){
+                yo.getMano()[i]=r;
+                yo.getMano()[i].setEstado(Estado.MANO);
+                break;
+            }
         }
     }
 

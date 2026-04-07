@@ -42,11 +42,11 @@ public class Juego {
         mazoCompleto.add(new Magia("Agujero Oscuro",TipoCarta.MAGICA,true,"Destruye todos los monstruos en el campo",Estado.BARAJA));
         mazoCompleto.add(new Magia("Tifon del espacio Mistico",TipoCarta.MAGICA,true,"Selecciona 1 magica/trampa  en el campo, destruye ese objetivo.",Estado.BARAJA));
         mazoCompleto.add(new Magia("Caridad elegante",TipoCarta.MAGICA,true,"Roba tres cartas y manda 2 al cementerio",Estado.BARAJA));
-        mazoCompleto.add(new Magia("Fuerza de Resabastecimiento",TipoCarta.MAGICA,true,"Roba 3 cartas y descartas 2 cartas de tu mano al Cementerio",Estado.BARAJA));
+        mazoCompleto.add(new Magia("Dian Keto, el Señora de la Curación",TipoCarta.MAGICA,true,"Aumenta tus Life Points en 1000 puntos.",Estado.BARAJA));
         mazoCompleto.add(new Magia("Tormenta Fuerte",TipoCarta.MAGICA,true,"Destruye todas las cartas Magicas y trampa en el campo",Estado.BARAJA));
         mazoCompleto.add(new Magia("Reproduccion de hechizo",TipoCarta.MAGICA,true,"Manda al cementerio 2 Mágicas en tu mano",Estado.BARAJA));
         mazoCompleto.add(new Magia("Intercambio",TipoCarta.MAGICA,true,"Intercambian sus cartas",Estado.BARAJA));
-        mazoCompleto.add(new Magia("Hinotama",TipoCarta.MAGICA,true,"Manda al cementerio dos Mágicas en tu mano y despues selecciona 1 Mágica en tu Cementerio",Estado.BARAJA));
+        mazoCompleto.add(new Magia("Hinotama",TipoCarta.MAGICA,true,"Inflige 500 puntos de daño a tu adversario.",Estado.BARAJA));
 
         Collections.shuffle(mazoCompleto);
         
