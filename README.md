@@ -8,5 +8,5 @@ Todo siguiendo los requisitos dados por el profesor, haciendo uso de nuestros co
 # Integrantes:
  - Jhoan Sebastián López Gómez , 2559762 - 3743 
  - Juan José Quevedo Piedrahita, 2559886 - 3743 
- - Juan Camilo García Solarte, 2559819 -37443
+ - Juan Camilo García Solarte, 2559819 -3743
  - Sergio Alejandro Quintero Bolivar 2559896 - 3743
