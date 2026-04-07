@@ -9,7 +9,6 @@ public class Mounstro  extends Carta {
         this.estrellas = estrellas;
         
     }
-
     public enum Estrellas{
     Una, Dos, Tres, Cuatro, Cinco, Seis,
     Siete, Ocho, Nueve, Diez
@@ -26,18 +25,14 @@ public void setDefensa(short defensa) {
 public short getDefensa() {
     return defensa;
 }
-
 public void setEstrellas(Estrellas estrellas) {
     this.estrellas = estrellas;
 }
 public Estrellas getEstrellas() {
     return estrellas;
 }
-
 @Override
 public void usar(Jugador jugador, Jugador oponente) {
-         jugador.getCampo().add(this);
-        setEstado(Estado.CAMPO);
-        System.out.println("Se invoca " + getNombre());
+    System.out.println("Se invoca " + getNombre());
 }
 }
