@@ -1,0 +1,3 @@
+public enum NombreMagia {
+    RAYO, OLLA_DE_LA_CODICIA, TERRAFORMING, SANACION
+}
