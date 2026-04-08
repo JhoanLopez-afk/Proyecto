@@ -47,13 +47,24 @@ public class App {
                     System.out.println("2. Usar mágica");
                     System.out.println("3. Ver campo");
                     System.out.println("4. Ir a fase de batalla");
+                    System.out.println("5. Cambiar posición de monstruo");
 
                     byte opcion = teclado.nextByte();
 
                     if (opcion == 1) {
                         System.out.print("Elige índice para invocar: ");
                         byte id = teclado.nextByte();
-                        Jugador1.invocarMonstruo(id);
+                        System.out.println("Posición 1. ATAQUE  2. DEFENSA:");
+                        byte pos = teclado.nextByte();
+
+                        Posicion posicion;
+
+                    if (pos == 2) {
+                        posicion = Posicion.DEFENSA;
+                    } else {
+                        posicion = Posicion.ATAQUE;}
+
+                    Jugador1.invocarMonstruo(id, posicion);
 
                     } else if (opcion == 2) {
                         System.out.print("Elige índice de la mágica: ");
@@ -69,8 +80,24 @@ public class App {
 
                     } else if (opcion == 4) {
                         faseBatalla = true;
+                    } else if (opcion == 5) {
+                        System.out.print("Elige índice del monstruo: ");
+                        byte id = teclado.nextByte();
+                        
+                        System.out.print("Nueva posición 1. ATAQUE  2. DEFENSA: ");
+                        byte pos = teclado.nextByte();
+
+                        Posicion nuevaPosicion;
+
+                        if (pos == 2) {
+                            nuevaPosicion = Posicion.DEFENSA;
+                        } else {
+                            nuevaPosicion = Posicion.ATAQUE;
+                        }
+                        Jugador1.cambiarPosicionMonstruo(id, nuevaPosicion);
                     }
                 }
+            
 
                 System.out.println("\nFASE DE BATALLA");
 
@@ -139,13 +166,21 @@ public class App {
                     System.out.println("2. Usar mágica");
                     System.out.println("3. Ver campo");
                     System.out.println("4. Ir a fase de batalla");
+                    System.out.println("5. Cambiar posición de monstruo");
 
                     byte opcion = teclado.nextByte();
 
                     if (opcion == 1) {
                         System.out.print("Elige índice para invocar: ");
                         byte id = teclado.nextByte();
-                        Jugador2.invocarMonstruo(id);
+                        System.out.println("Posición 1. ATAQUE  2. DEFENSA:");
+                        byte pos = teclado.nextByte();
+                        Posicion posicion;
+                    if (pos == 2) {
+                        posicion = Posicion.DEFENSA;
+                    } else {
+                        posicion = Posicion.ATAQUE;}
+                        Jugador2.invocarMonstruo(id, posicion);
 
                     } else if (opcion == 2) {
                         System.out.print("Elige índice de la mágica: ");
@@ -161,9 +196,23 @@ public class App {
 
                     } else if (opcion == 4) {
                         faseBatalla = true;
-                    }
-                }
+                    }else if (opcion == 5) {
+                        System.out.print("Elige índice del monstruo: ");
+                        byte id = teclado.nextByte();
+                        
+                        System.out.print("Nueva posición 1. ATAQUE  2. DEFENSA: ");
+                        byte pos = teclado.nextByte();
 
+                        Posicion nuevaPosicion;
+
+                        if (pos == 2) {
+                            nuevaPosicion = Posicion.DEFENSA;
+                        } else {
+                            nuevaPosicion = Posicion.ATAQUE;
+                        }
+                        Jugador2.cambiarPosicionMonstruo(id, nuevaPosicion);
+                }
+                }
                 System.out.println("\nFASE DE BATALLA");
 
                 if (primerTurno) {

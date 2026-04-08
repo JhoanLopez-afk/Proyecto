@@ -2,11 +2,13 @@ public class Mounstro  extends Carta {
    private short ataque;
    private short defensa;
    private Estrellas estrellas;
+    private Posicion posicion;
     public Mounstro(String nombre, short ataque, short defensa, TipoCarta tipo, Estrellas estrellas, boolean visible, String efecto, Estado estado) {
         super(nombre, tipo, visible, efecto, estado);
         this.ataque = ataque;
         this.defensa = defensa;
         this.estrellas = estrellas;
+        this.posicion = Posicion.ATAQUE;
         
     }
     public enum Estrellas{
@@ -27,6 +29,12 @@ public short getDefensa() {
 }
 public void setEstrellas(Estrellas estrellas) {
     this.estrellas = estrellas;
+}
+public Posicion getPosicion() {
+    return posicion;
+}
+public void setPosicion(Posicion posicion) {
+    this.posicion = posicion;
 }
 public Estrellas getEstrellas() {
     return estrellas;

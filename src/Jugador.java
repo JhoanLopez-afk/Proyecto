@@ -9,6 +9,7 @@ public class Jugador {
     private Carta[] campoMagias;
     private Carta[] cementerio;
     private Carta[] baraja;
+    private boolean cambioPosicion;
 
 
     private boolean yaInvoco;
@@ -23,6 +24,7 @@ public class Jugador {
         this.cementerio = new Carta[20];
         this.ganador = false;
         this.yaInvoco = false;
+        this.cambioPosicion = false;
     }
 
     public enum Fases {
@@ -68,6 +70,7 @@ public Carta[] getBaraja() {
 
     public void resetTurno() {
         yaInvoco = false;
+        cambioPosicion = false;
     }
 
     public boolean tieneMonstruos() {
@@ -119,7 +122,7 @@ public Carta[] getBaraja() {
     }
 
    
-    public void invocarMonstruo(int indice) {
+    public void invocarMonstruo(int indice, Posicion posicion) {
 
         if (yaInvoco) {
             System.out.println("Ya invocaste este turno");
@@ -138,10 +141,12 @@ public Carta[] getBaraja() {
 
         for (int i = 0; i < campoMonstruos.length; i++) {
             if (campoMonstruos[i] == null) {
+                Mounstro m = (Mounstro) mano[indice];
+                m.setPosicion(posicion);
                 campoMonstruos[i] = mano[indice];
                 mano[indice] = null;
                 yaInvoco = true;
-                System.out.println("Invocaste: " + campoMonstruos[i].getNombre());
+                System.out.println("Invocaste: " + campoMonstruos[i].getNombre() + " en posición " + posicion);
                 return;
             }
         }
@@ -163,6 +168,7 @@ public Carta[] getBaraja() {
                 System.out.println(i + ". [ " + m.getNombre() + " ]");
                 System.out.println("    ATK: " + m.getAtaque());
                 System.out.println("    DEF: " + m.getDefensa());
+                System.out.println("   Pos: " + m.getPosicion());
             }
 
             vacio = false;
@@ -220,64 +226,61 @@ public Carta[] getBaraja() {
    
 public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo) {
 
-    if (indiceMiMounstro < 0 || indiceMiMounstro >= campoMonstruos.length || this.campoMonstruos[indiceMiMounstro] == null) {
+    if (indiceMiMounstro < 0 || indiceMiMounstro >= campoMonstruos.length || campoMonstruos[indiceMiMounstro] == null) {
         System.out.println("No existe un monstruo en esa posición para atacar");
         return;
     }
 
-    if (!(this.campoMonstruos[indiceMiMounstro] instanceof Mounstro)) {
-        System.out.println("La carta en esa posición no es un monstruo");
-        return;
+    Mounstro atacante = (Mounstro) campoMonstruos[indiceMiMounstro];
+
+    if (atacante.getPosicion() == Posicion.DEFENSA) {
+    System.out.println("Un monstruo en defensa no puede atacar");
+    return;
     }
-
-    Mounstro mounstroAtacante = (Mounstro) this.campoMonstruos[indiceMiMounstro];
-
-    System.out.println(" -CAMPO ANTES DEL ATAQUE -");
-    System.out.println("---- " + this.getNombreJugador() + " ----");
-    this.mostrarCampo();
-    System.out.println("---- " + oponente.getNombreJugador() + " ----");
-    oponente.mostrarCampo();
 
     if (oponente.tieneMonstruos() && indiceObjetivo == -1) {
         System.out.println("No puedes hacer ataque directo si el rival tiene monstruos");
         return;
     }
 
-    if (indiceObjetivo == -1 || !oponente.tieneMonstruos()) {
-        System.out.println(" Ataque directo " + mounstroAtacante.getNombre() + " ataca con " + mounstroAtacante.getAtaque());
-        oponente.setVida((short) (oponente.getVida() - mounstroAtacante.getAtaque()));
-        System.out.println(oponente.getNombreJugador() + " pierde " + mounstroAtacante.getAtaque() + " LP");
+    if (indiceObjetivo == -1) {
+        oponente.setVida((short) (oponente.getVida() - atacante.getAtaque()));
         return;
     }
 
     if (indiceObjetivo < 0 || indiceObjetivo >= oponente.getCampo().length || oponente.getCampo()[indiceObjetivo] == null) {
-        System.out.println("No existe un monstruo rival en esa posición");
+        System.out.println("No existe un objetivo válido");
         return;
     }
 
-    Mounstro MounstroDefensor = (Mounstro) oponente.getCampo()[indiceObjetivo];
+    Mounstro defensor = (Mounstro) oponente.getCampo()[indiceObjetivo];
 
-    System.out.println(mounstroAtacante.getNombre() + " (ATK " + mounstroAtacante.getAtaque() + ") ATACA A " + MounstroDefensor.getNombre() + " (ATK " + MounstroDefensor.getAtaque() + ")");
+    if (defensor.getPosicion() == Posicion.ATAQUE) {
 
-    if (mounstroAtacante.getAtaque() > MounstroDefensor.getAtaque()) {
+        if (atacante.getAtaque() > defensor.getAtaque()) {
+            short daño = (short) (atacante.getAtaque() - defensor.getAtaque());
+            oponente.setVida((short) (oponente.getVida() - daño));
+            oponente.muereMounstro(indiceObjetivo);
 
-        short daño = (short) (mounstroAtacante.getAtaque() - MounstroDefensor.getAtaque());
-        oponente.setVida((short) (oponente.getVida() - daño));
-        System.out.println(oponente.getNombreJugador() + " pierde " + daño + " LP");
-        oponente.muereMounstro(indiceObjetivo);
+        } else if (atacante.getAtaque() < defensor.getAtaque()) {
+            short daño = (short) (defensor.getAtaque() - atacante.getAtaque());
+            setVida((short) (getVida() - daño));
+            muereMounstro(indiceMiMounstro);
 
-    } else if (mounstroAtacante.getAtaque() < MounstroDefensor.getAtaque()) {
-
-        short daño = (short) (MounstroDefensor.getAtaque() - mounstroAtacante.getAtaque());
-        setVida((short) (getVida() - daño));
-        System.out.println(getNombreJugador() + " pierde " + daño + " LP");
-        muereMounstro(indiceMiMounstro);
+        } else {
+            muereMounstro(indiceMiMounstro);
+            oponente.muereMounstro(indiceObjetivo);
+        }
 
     } else {
 
-        System.out.println("¡Empate! Ambos monstruos son destruidos");
-        muereMounstro(indiceMiMounstro);
-        oponente.muereMounstro(indiceObjetivo);
+        if (atacante.getAtaque() > defensor.getDefensa()) {
+            oponente.muereMounstro(indiceObjetivo);
+
+        } else if (atacante.getAtaque() < defensor.getDefensa()) {
+            short daño = (short) (defensor.getDefensa() - atacante.getAtaque());
+            setVida((short) (getVida() - daño));
+        }
     }
 }
 
@@ -291,5 +294,22 @@ public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo)
                 return;
             }
         }
+    }
+
+    public void cambiarPosicionMonstruo(int indice, Posicion nuevaPosicion) {
+        if (cambioPosicion) {
+            System.out.println("Ya cambiaste la posición de un monstruo este turno");
+            return;
+        }
+
+        if (indice < 0 || indice >= campoMonstruos.length || campoMonstruos[indice] == null) {
+            System.out.println("No existe un monstruo en esa posición para cambiar su posición");
+            return;
+        }
+
+        Mounstro m = (Mounstro) campoMonstruos[indice];
+        m.setPosicion(nuevaPosicion);
+        cambioPosicion = true;
+        System.out.println("Cambiaste la posición de " + m.getNombre() + " a " + nuevaPosicion);
     }
 }
