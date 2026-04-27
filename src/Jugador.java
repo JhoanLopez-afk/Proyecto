@@ -10,7 +10,8 @@ public class Jugador {
     private Carta[] cementerio;
     private Carta[] baraja;
     private boolean cambioPosicion;
-
+    private boolean ataqueNegado = false;
+    private boolean battlePhaseTerminada = false;
 
     private boolean yaInvoco;
 
@@ -67,6 +68,21 @@ public Carta[] getBaraja() {
     return baraja;
 }
 
+public boolean isAtaqueNegado() {
+    return ataqueNegado;
+}
+
+public void setAtaqueNegado(boolean ataqueNegado) {
+    this.ataqueNegado = ataqueNegado;
+}
+
+public boolean isBattlePhaseTerminada() {
+    return battlePhaseTerminada;
+}
+
+public void setBattlePhaseTerminada(boolean battlePhaseTerminada) {
+    this.battlePhaseTerminada = battlePhaseTerminada;
+}
 
     public void resetTurno() {
         yaInvoco = false;
@@ -226,6 +242,11 @@ public Carta[] getBaraja() {
    
 public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo) {
 
+    if (oponente.isAtaqueNegado()) {
+        System.out.println("El ataque fue negado.");
+        oponente.setAtaqueNegado(false);
+        return;
+    }
     if (indiceMiMounstro < 0 || indiceMiMounstro >= campoMonstruos.length || campoMonstruos[indiceMiMounstro] == null) {
         System.out.println("No existe un monstruo en esa posición para atacar");
         return;

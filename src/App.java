@@ -645,16 +645,11 @@ public class NewJFrame extends javax.swing.JFrame {
                 if (primerTurno) {
                     System.out.println("No puedes atacar en el primer turno");
                 } else {
+
                     System.out.println("¿Deseas atacar? 1.Sí 2.No");
                     byte atk = teclado.nextByte();
 
                     if (atk == 1) {
-
-                        System.out.println("\n===== CAMPO ANTES DEL ATAQUE =====");
-                        System.out.println("---- " + Jugador1.getNombreJugador() + " ----");
-                        Jugador1.mostrarCampo();
-                        System.out.println("---- " + Jugador2.getNombreJugador() + " ----");
-                        Jugador2.mostrarCampo();
 
                         System.out.print("Elige tu monstruo: ");
                         byte ind = teclado.nextByte();
@@ -664,15 +659,25 @@ public class NewJFrame extends javax.swing.JFrame {
                             System.out.print("Elige monstruo rival: ");
                             byte obj = teclado.nextByte();
 
-                            if (obj == -1) {
-                                System.out.println("No puedes hacer ataque directo si el oponente tiene monstruos");
-                            } else {
+                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1);
+
+                            if (!Jugador1.isAtaqueNegado()) {
                                 Jugador1.atacar(ind, Jugador2, obj);
+                            } else {
+                                System.out.println("El ataque fue negado");
+                                Jugador1.setAtaqueNegado(false);
                             }
 
                         } else {
-                            System.out.println("¡Ataque directo!");
-                            Jugador1.atacar(ind, Jugador2, (byte) -1);
+
+                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1);
+
+                            if (!Jugador1.isAtaqueNegado()) {
+                                Jugador1.atacar(ind, Jugador2, (byte)-1);
+                            } else {
+                                System.out.println("El ataque fue negado");
+                                Jugador1.setAtaqueNegado(false);
+                            }
                         }
                     }
                 }
@@ -759,16 +764,11 @@ public class NewJFrame extends javax.swing.JFrame {
                 if (primerTurno) {
                     System.out.println("No puedes atacar en el primer turno");
                 } else {
+
                     System.out.println("¿Deseas atacar? 1.Sí 2.No");
                     byte atk = teclado.nextByte();
 
                     if (atk == 1) {
-
-                        System.out.println("\n===== CAMPO ANTES DEL ATAQUE =====");
-                        System.out.println("---- " + Jugador1.getNombreJugador() + " ----");
-                        Jugador1.mostrarCampo();
-                        System.out.println("---- " + Jugador2.getNombreJugador() + " ----");
-                        Jugador2.mostrarCampo();
 
                         System.out.print("Elige tu monstruo: ");
                         byte ind = teclado.nextByte();
@@ -778,15 +778,25 @@ public class NewJFrame extends javax.swing.JFrame {
                             System.out.print("Elige monstruo rival: ");
                             byte obj = teclado.nextByte();
 
-                            if (obj == -1) {
-                                System.out.println("No puedes hacer ataque directo si el oponente tiene monstruos");
-                            } else {
+                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2);
+
+                            if (!Jugador2.isAtaqueNegado()) {
                                 Jugador2.atacar(ind, Jugador1, obj);
+                            } else {
+                                System.out.println("El ataque fue negado");
+                                Jugador2.setAtaqueNegado(false);
                             }
 
                         } else {
-                            System.out.println("¡Ataque directo!");
-                            Jugador2.atacar(ind, Jugador1, (byte) -1);
+
+                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2);
+
+                            if (!Jugador2.isAtaqueNegado()) {
+                                Jugador2.atacar(ind, Jugador1, (byte)-1);
+                            } else {
+                                System.out.println("El ataque fue negado");
+                                Jugador2.setAtaqueNegado(false);
+                            }
                         }
                     }
                 }
@@ -834,9 +844,9 @@ public class NewJFrame extends javax.swing.JFrame {
                     System.out.println(i + ". " + m.getNombre() +
                             " ATK: " + m.getAtaque() +
                             " DEF: " + m.getDefensa());
-                } else {
+                } else if (mano[i] instanceof Magia) {
                     System.out.println(i + ". " + mano[i].getNombre() + " (Magia)");
-                }
+                } else {System.out.println(i + ". " + mano[i].getNombre() + " (Trampa)");
             }
         }
     }
