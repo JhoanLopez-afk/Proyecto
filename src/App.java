@@ -659,7 +659,7 @@ public class NewJFrame extends javax.swing.JFrame {
                             System.out.print("Elige monstruo rival: ");
                             byte obj = teclado.nextByte();
 
-                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1);
+                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1, ind);
 
                             if (!Jugador1.isAtaqueNegado()) {
                                 Jugador1.atacar(ind, Jugador2, obj);
@@ -670,7 +670,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
                         } else {
 
-                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1);
+                            Jugador2.activarTrampaAtaque(Jugador2, Jugador1, ind);
 
                             if (!Jugador1.isAtaqueNegado()) {
                                 Jugador1.atacar(ind, Jugador2, (byte)-1);
@@ -778,7 +778,7 @@ public class NewJFrame extends javax.swing.JFrame {
                             System.out.print("Elige monstruo rival: ");
                             byte obj = teclado.nextByte();
 
-                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2);
+                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2, ind);
 
                             if (!Jugador2.isAtaqueNegado()) {
                                 Jugador2.atacar(ind, Jugador1, obj);
@@ -789,7 +789,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
                         } else {
 
-                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2);
+                            Jugador1.activarTrampaAtaque(Jugador1, Jugador2, ind);
 
                             if (!Jugador2.isAtaqueNegado()) {
                                 Jugador2.atacar(ind, Jugador1, (byte)-1);

@@ -57,6 +57,6 @@ public class FabricaCartas {
         cartas.add(new Trampa("Artilugio de Evacuación Compulsiva",TipoCarta.TRAMPA,true,"Selecciona 1 monstruo en el Campo; devuelve a la mano ese objetivo.",Estado.BARAJA));
         cartas.add(new Trampa("Agujero Trampa Sin Fondo",TipoCarta.TRAMPA,true,"Cuando tu adversario Invoca uno o más monstruos con 1500 ATK o más: destruye ese o esos monstruos con 1500 ATK o más y, si lo haces, destiérralos.",Estado.BARAJA));
         cartas.add(new Trampa("Juicio Solemne",TipoCarta.TRAMPA,true,"Cuando uno o más monstruos fueran a ser Invocados O una Carta Mágica/de Trampa es activada: paga la mitad de tus LP; niega la Invocación o activación y, si lo haces, destruye esa carta.",Estado.BARAJA));
-    }
-    return cartas;
+         return cartas;
+   } 
 }
