@@ -23,7 +23,7 @@ public class Jugador {
         this.nombreJugador = nombreJugador;
         this.vida = 8000;
         this.baraja = barajaInicial;
-        this.mano = new Carta[6];
+        this.mano = new Carta[5];
         this.campoMonstruos = new Carta[5];
         this.campoMagias = new Carta[5];
         this.cementerio = new Carta[25];
