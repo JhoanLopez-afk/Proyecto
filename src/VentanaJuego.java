@@ -4,22 +4,22 @@ import java.io.File;
 
 public class VentanaJuego extends JFrame {
 
-    // ── Estado del juego ─────────────────────────────────────────────
+    //Estado del juego 
     private Jugador jugador1;
     private Jugador jugador2;
     private byte turnoDe = 1;
     private boolean primerTurno = true;
     private int cartaSeleccionadaEnMano = -1;
 
-    // ── Constantes ───────────────────────────────────────────────────
+    // Constantes
     private static final int ANCHO_CARTA  = 85;
     private static final int ALTO_CARTA   = 115;
 
-    // ── Slots del campo ──────────────────────────────────────────────
+    //Slots del campo 
     private JButton[] slotsCampoJ1 = new JButton[5];
     private JButton[] slotsCampoJ2 = new JButton[5];
 
-    // ── Slots de la mano ─────────────────────────────────────────────
+    // Slots de la mano
     private JButton[] slotsMano = new JButton[5];
 
     // ── Botones de acción ────────────────────────────────────────────
@@ -322,240 +322,288 @@ public class VentanaJuego extends JFrame {
     }
 
     private void accionMagia() {
-        if (cartaSeleccionadaEnMano == -1) {
-            JOptionPane.showMessageDialog(this,
-                "Primero selecciona una carta mágica de tu mano.",
-                "Sin selección", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Jugador activo = jugadorActivo();
-        Jugador rival  = jugadorRival();
-        Carta carta = activo.getMano()[cartaSeleccionadaEnMano];
-
-        if (carta == null || !(carta instanceof Magia)) {
-            JOptionPane.showMessageDialog(this,
-                "La carta seleccionada no es una mágica.",
-                "No es mágica", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String nombre = carta.getNombre();
-        agregarLog(nombreActivo() + " usó: " + nombre);
-
-        if (nombre.equals("Monstruo renacido")) {
-            manejarMonstruoRenacido(activo, rival);
-            return;
-        }
-        if (nombre.equals("Caridad elegante")
-                || nombre.equals("Fuerza de Resabastecimiento")
-                || nombre.equals("Reproduccion de hechizo")) {
-            manejarMagiaDescartar(activo, rival, nombre);
-            return;
-        }
-        if (nombre.equals("Intercambio")) {
-            manejarIntercambio(activo, rival);
-            return;
-        }
-        if (nombre.equals("Tifon del espacio Mistico")) {
-            manejarTifon(activo, rival);
-            return;
-        }
-
-        // Resto sin selección
-        activo.usarMagia(cartaSeleccionadaEnMano, rival);
-        cartaSeleccionadaEnMano = -1;
-        actualizarUI();
-        revisarFinJuego();
+    if (cartaSeleccionadaEnMano == -1) {
+        JOptionPane.showMessageDialog(this,
+            "Primero selecciona una carta mágica de tu mano.",
+            "Sin selección", JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
-    private void manejarMonstruoRenacido(Jugador activo, Jugador rival) {
-        Carta[] cem = activo.getCementerio();
-        java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
-        java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+    Jugador activo = jugadorActivo();
+    Jugador rival  = jugadorRival();
+    Carta carta = activo.getMano()[cartaSeleccionadaEnMano];
 
-        for (int i = 0; i < cem.length; i++) {
-            if (cem[i] instanceof Mounstro) {
-                ops.add(cem[i].getNombre());
-                idx.add(i);
-            }
-        }
-        if (ops.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "No hay monstruos en tu cementerio.",
-                "Cementerio vacío", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
+    if (carta == null || !(carta instanceof Magia)) {
+        JOptionPane.showMessageDialog(this,
+            "La carta seleccionada no es una mágica.",
+            "No es mágica", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-        String sel = (String) JOptionPane.showInputDialog(this,
-            "Selecciona el monstruo a revivir:", "Monstruo Renacido",
-            JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
-        if (sel == null) return;
+    String nombre = carta.getNombre();
+    agregarLog(nombreActivo() + " usó: " + nombre);
 
-        int i = idx.get(ops.indexOf(sel));
-        Carta revivir = cem[i];
-        cem[i] = null;
-
-        for (int j = 0; j < activo.getCampo().length; j++) {
-            if (activo.getCampo()[j] == null) {
-                activo.getCampo()[j] = revivir;
-                revivir.setEstado(Estado.CAMPO);
-                ((Mounstro) revivir).setPosicion(Posicion.ATAQUE);
-                break;
-            }
-        }
-
+    // ── Magias sin selección ─────────────────────────────────────────
+    if (nombre.equals("Olla de la codicia")) {
+        activo.robarCarta();
+        activo.robarCarta();
+        agregarLog("Robaste 2 cartas.");
         moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
-        agregarLog(nombreActivo() + " revivió: " + revivir.getNombre());
-        cartaSeleccionadaEnMano = -1;
-        actualizarUI();
-    }
 
-    private void manejarMagiaDescartar(Jugador activo, Jugador rival, String nombre) {
-        int robar    = 3;
-        int descartar = 2;
-
-        for (int r = 0; r < robar; r++) activo.robarCarta();
-
-        for (int d = 0; d < descartar; d++) {
-            java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
-            java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
-
-            for (int i = 0; i < activo.getMano().length; i++) {
-                if (activo.getMano()[i] != null && i != cartaSeleccionadaEnMano) {
-                    boolean valida = !nombre.equals("Reproduccion de hechizo")
-                        || activo.getMano()[i] instanceof Magia;
-                    if (valida) {
-                        ops.add(activo.getMano()[i].getNombre());
-                        idx.add(i);
-                    }
-                }
-            }
-            if (ops.isEmpty()) break;
-
-            String sel = (String) JOptionPane.showInputDialog(this,
-                "Descarta una carta (" + (d + 1) + "/" + descartar + "):",
-                "Descartar", JOptionPane.PLAIN_MESSAGE, null,
-                ops.toArray(), ops.get(0));
-            if (sel == null) break;
-
-            int i = idx.get(ops.indexOf(sel));
-            Carta descartada = activo.getMano()[i];
-            activo.getMano()[i] = null;
-            for (int k = 0; k < activo.getCementerio().length; k++) {
-                if (activo.getCementerio()[k] == null) {
-                    activo.getCementerio()[k] = descartada;
-                    descartada.setEstado(Estado.CEMENTERIO);
-                    break;
-                }
-            }
-        }
-
+    } else if (nombre.equals("Hinotama")) {
+        rival.setVida((short)(rival.getVida() - 500));
+        agregarLog(rival.getNombreJugador() + " recibe 500 de daño.");
         moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
-        cartaSeleccionadaEnMano = -1;
-        actualizarUI();
-    }
 
-    private void manejarIntercambio(Jugador activo, Jugador rival) {
-        // Tu carta
-        java.util.ArrayList<String>  opsProp = new java.util.ArrayList<>();
-        java.util.ArrayList<Integer> idxProp = new java.util.ArrayList<>();
-        for (int i = 0; i < activo.getMano().length; i++) {
-            if (activo.getMano()[i] != null && i != cartaSeleccionadaEnMano) {
-                opsProp.add(activo.getMano()[i].getNombre());
-                idxProp.add(i);
-            }
-        }
-        if (opsProp.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No tienes cartas para intercambiar.");
-            return;
-        }
-        String selP = (String) JOptionPane.showInputDialog(this,
-            "Elige tu carta a entregar:", "Intercambio",
-            JOptionPane.PLAIN_MESSAGE, null, opsProp.toArray(), opsProp.get(0));
-        if (selP == null) return;
-        int iP = idxProp.get(opsProp.indexOf(selP));
-
-        // Carta del rival
-        java.util.ArrayList<String>  opsRiv = new java.util.ArrayList<>();
-        java.util.ArrayList<Integer> idxRiv = new java.util.ArrayList<>();
-        for (int i = 0; i < rival.getMano().length; i++) {
-            if (rival.getMano()[i] != null) {
-                opsRiv.add(rival.getMano()[i].getNombre());
-                idxRiv.add(i);
-            }
-        }
-        if (opsRiv.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "El rival no tiene cartas.");
-            return;
-        }
-        String selR = (String) JOptionPane.showInputDialog(this,
-            "Elige la carta del rival:", "Intercambio",
-            JOptionPane.PLAIN_MESSAGE, null, opsRiv.toArray(), opsRiv.get(0));
-        if (selR == null) return;
-        int iR = idxRiv.get(opsRiv.indexOf(selR));
-
-        Carta c1 = activo.getMano()[iP];
-        Carta c2 = rival.getMano()[iR];
-        activo.getMano()[iP] = c2;
-        rival.getMano()[iR]  = c1;
-
+    } else if (nombre.equals("Dian Keto, el Señora de la Curación")) {
+        activo.setVida((short)(activo.getVida() + 1000));
+        agregarLog("Recuperaste 1000 LP.");
         moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
-        agregarLog(nombreActivo() + " usó Intercambio.");
-        cartaSeleccionadaEnMano = -1;
-        actualizarUI();
-    }
 
-    private void manejarTifon(Jugador activo, Jugador rival) {
-        java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
-        java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
-
+    } else if (nombre.equals("Agujero Oscuro")) {
+        for (int i = 0; i < activo.getCampo().length; i++) {
+            if (activo.getCampo()[i] != null) activo.muereMounstro(i);
+        }
         for (int i = 0; i < rival.getCampo().length; i++) {
-            if (rival.getCampo()[i] != null) {
-                ops.add(rival.getCampo()[i].getNombre() + " [Monstruo]");
-                idx.add(i);
+            if (rival.getCampo()[i] != null) rival.muereMounstro(i);
+        }
+        agregarLog("Todos los monstruos fueron destruidos.");
+        moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
+
+    } else if (nombre.equals("Tormenta Fuerte")) {
+        for (int i = 0; i < activo.getCampoMagias().length; i++) {
+            if (activo.getCampoMagias()[i] != null) {
+                activo.getCementerio()[i] = activo.getCampoMagias()[i];
+                activo.getCampoMagias()[i] = null;
             }
         }
         for (int i = 0; i < rival.getCampoMagias().length; i++) {
             if (rival.getCampoMagias()[i] != null) {
-                ops.add(rival.getCampoMagias()[i].getNombre() + " [M/T]");
-                idx.add(-(i + 1));
+                rival.getCementerio()[i] = rival.getCampoMagias()[i];
+                rival.getCampoMagias()[i] = null;
             }
         }
+        agregarLog("Todas las mágicas y trampas fueron destruidas.");
+        moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
 
-        if (ops.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "El rival no tiene cartas en el campo.", "Campo vacío",
-                JOptionPane.INFORMATION_MESSAGE);
-            return;
+    // ── Magias con selección ─────────────────────────────────────────
+    } else if (nombre.equals("Monstruo renacido")) {
+        manejarMonstruoRenacido(activo, rival);
+        return;
+
+    } else if (nombre.equals("Caridad elegante")
+            || nombre.equals("Fuerza de Resabastecimiento")) {
+        manejarMagiaRobarDescartar(activo, 3, 2, false);
+        return;
+
+    } else if (nombre.equals("Reproduccion de hechizo")) {
+        manejarMagiaRobarDescartar(activo, 0, 2, true);
+        return;
+
+    } else if (nombre.equals("Intercambio")) {
+        manejarIntercambio(activo, rival);
+        return;
+
+    } else if (nombre.equals("Tifon del espacio Mistico")) {
+        manejarTifon(activo, rival);
+        return;
+    }
+
+    cartaSeleccionadaEnMano = -1;
+    actualizarUI();
+    revisarFinJuego();
+}
+
+private void manejarMonstruoRenacido(Jugador activo, Jugador rival) {
+    Carta[] cem = activo.getCementerio();
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+
+    for (int i = 0; i < cem.length; i++) {
+        if (cem[i] instanceof Mounstro) {
+            ops.add(cem[i].getNombre());
+            idx.add(i);
         }
+    }
+    if (ops.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "No hay monstruos en tu cementerio.",
+            "Cementerio vacío", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
 
-        String sel = (String) JOptionPane.showInputDialog(this,
-            "Elige la carta a destruir:", "Tifón del Espacio Místico",
-            JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
-        if (sel == null) return;
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Selecciona el monstruo a revivir:", "Monstruo Renacido",
+        JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
+    if (sel == null) return;
 
-        int i = idx.get(ops.indexOf(sel));
-        if (i >= 0) {
-            rival.muereMounstro(i);
-        } else {
-            int im = -(i + 1);
-            Carta c = rival.getCampoMagias()[im];
-            rival.getCampoMagias()[im] = null;
-            for (int k = 0; k < rival.getCementerio().length; k++) {
-                if (rival.getCementerio()[k] == null) {
-                    rival.getCementerio()[k] = c;
-                    c.setEstado(Estado.CEMENTERIO);
-                    break;
+    int i = idx.get(ops.indexOf(sel));
+    Carta revivir = cem[i];
+    cem[i] = null;
+
+    for (int j = 0; j < activo.getCampo().length; j++) {
+        if (activo.getCampo()[j] == null) {
+            activo.getCampo()[j] = revivir;
+            revivir.setEstado(Estado.CAMPO);
+            ((Mounstro) revivir).setPosicion(Posicion.ATAQUE);
+            break;
+        }
+    }
+
+    agregarLog(nombreActivo() + " revivió: " + revivir.getNombre());
+    moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
+    cartaSeleccionadaEnMano = -1;
+    actualizarUI();
+}
+
+private void manejarMagiaRobarDescartar(Jugador activo, int robar, int descartar, boolean soloMagias) {
+    // Robar cartas primero
+    for (int r = 0; r < robar; r++) activo.robarCarta();
+
+    // Pedir al jugador que descarte
+    for (int d = 0; d < descartar; d++) {
+        java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+        java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+
+        for (int i = 0; i < activo.getMano().length; i++) {
+            if (activo.getMano()[i] != null && i != cartaSeleccionadaEnMano) {
+                if (!soloMagias || activo.getMano()[i] instanceof Magia) {
+                    ops.add(activo.getMano()[i].getNombre());
+                    idx.add(i);
                 }
             }
         }
 
-        moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
-        agregarLog(nombreActivo() + " destruyó una carta con Tifón.");
-        cartaSeleccionadaEnMano = -1;
-        actualizarUI();
+        if (ops.isEmpty()) break;
+
+        String sel = (String) JOptionPane.showInputDialog(this,
+            "Descarta una carta (" + (d + 1) + "/" + descartar + "):"
+            + (soloMagias ? "\n(Solo puedes descartar mágicas)" : ""),
+            "Descartar", JOptionPane.PLAIN_MESSAGE, null,
+            ops.toArray(), ops.get(0));
+        if (sel == null) break;
+
+        int i = idx.get(ops.indexOf(sel));
+        Carta descartada = activo.getMano()[i];
+        activo.getMano()[i] = null;
+        for (int k = 0; k < activo.getCementerio().length; k++) {
+            if (activo.getCementerio()[k] == null) {
+                activo.getCementerio()[k] = descartada;
+                descartada.setEstado(Estado.CEMENTERIO);
+                break;
+            }
+        }
+        agregarLog("Descartaste: " + descartada.getNombre());
     }
+
+    moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
+    cartaSeleccionadaEnMano = -1;
+    actualizarUI();
+}
+
+private void manejarIntercambio(Jugador activo, Jugador rival) {
+    // Elegir carta propia
+    java.util.ArrayList<String>  opsProp = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idxProp = new java.util.ArrayList<>();
+    for (int i = 0; i < activo.getMano().length; i++) {
+        if (activo.getMano()[i] != null && i != cartaSeleccionadaEnMano) {
+            opsProp.add(activo.getMano()[i].getNombre());
+            idxProp.add(i);
+        }
+    }
+    if (opsProp.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "No tienes cartas para intercambiar.");
+        return;
+    }
+    String selP = (String) JOptionPane.showInputDialog(this,
+        "Elige tu carta a entregar:", "Intercambio",
+        JOptionPane.PLAIN_MESSAGE, null, opsProp.toArray(), opsProp.get(0));
+    if (selP == null) return;
+    int iP = idxProp.get(opsProp.indexOf(selP));
+
+    // Elegir carta del rival
+    java.util.ArrayList<String>  opsRiv = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idxRiv = new java.util.ArrayList<>();
+    for (int i = 0; i < rival.getMano().length; i++) {
+        if (rival.getMano()[i] != null) {
+            opsRiv.add(rival.getMano()[i].getNombre());
+            idxRiv.add(i);
+        }
+    }
+    if (opsRiv.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El rival no tiene cartas.");
+        return;
+    }
+    String selR = (String) JOptionPane.showInputDialog(this,
+        "Elige la carta del rival:", "Intercambio",
+        JOptionPane.PLAIN_MESSAGE, null, opsRiv.toArray(), opsRiv.get(0));
+    if (selR == null) return;
+    int iR = idxRiv.get(opsRiv.indexOf(selR));
+
+    // Hacer el intercambio
+    Carta c1 = activo.getMano()[iP];
+    Carta c2 = rival.getMano()[iR];
+    activo.getMano()[iP] = c2;
+    rival.getMano()[iR]  = c1;
+
+    agregarLog(nombreActivo() + " intercambió " + c1.getNombre()
+        + " por " + c2.getNombre());
+    moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
+    cartaSeleccionadaEnMano = -1;
+    actualizarUI();
+}
+
+private void manejarTifon(Jugador activo, Jugador rival) {
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+
+    for (int i = 0; i < rival.getCampo().length; i++) {
+        if (rival.getCampo()[i] != null) {
+            ops.add(rival.getCampo()[i].getNombre() + " [Monstruo]");
+            idx.add(i);
+        }
+    }
+    for (int i = 0; i < rival.getCampoMagias().length; i++) {
+        if (rival.getCampoMagias()[i] != null) {
+            ops.add(rival.getCampoMagias()[i].getNombre() + " [M/T]");
+            idx.add(-(i + 1));
+        }
+    }
+
+    if (ops.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "El rival no tiene cartas en el campo.",
+            "Campo vacío", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Elige la carta a destruir:", "Tifón del Espacio Místico",
+        JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
+    if (sel == null) return;
+
+    int i = idx.get(ops.indexOf(sel));
+    if (i >= 0) {
+        rival.muereMounstro(i);
+        agregarLog("Destruiste un monstruo del rival.");
+    } else {
+        int im = -(i + 1);
+        Carta c = rival.getCampoMagias()[im];
+        rival.getCampoMagias()[im] = null;
+        for (int k = 0; k < rival.getCementerio().length; k++) {
+            if (rival.getCementerio()[k] == null) {
+                rival.getCementerio()[k] = c;
+                c.setEstado(Estado.CEMENTERIO);
+                break;
+            }
+        }
+        agregarLog("Destruiste una mágica/trampa del rival.");
+    }
+
+    moverMagiaCementerio(activo, cartaSeleccionadaEnMano);
+    cartaSeleccionadaEnMano = -1;
+    actualizarUI();
+}
 
     private void accionAtacar() {
         Jugador activo = jugadorActivo();
