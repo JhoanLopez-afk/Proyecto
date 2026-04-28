@@ -1,3 +1,3 @@
 public enum TipoCarta {
-    MOUNSTRUO, MAGICA
+    MOUNSTRUO, MAGICA, TRAMPA
 }
