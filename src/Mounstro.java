@@ -3,12 +3,14 @@ public class Mounstro  extends Carta {
    private short defensa;
    private Estrellas estrellas;
     private Posicion posicion;
+    private boolean paralizado = false;
     public Mounstro(String nombre, short ataque, short defensa, TipoCarta tipo, Estrellas estrellas, boolean visible, String efecto, Estado estado) {
         super(nombre, tipo, visible, efecto, estado);
         this.ataque = ataque;
         this.defensa = defensa;
         this.estrellas = estrellas;
         this.posicion = Posicion.ATAQUE;
+        
         
     }
     public enum Estrellas{
@@ -38,6 +40,12 @@ public void setPosicion(Posicion posicion) {
 }
 public Estrellas getEstrellas() {
     return estrellas;
+}
+public boolean isParalizado() {
+    return paralizado;
+}
+public void setParalizado(boolean p) {
+    this.paralizado = p;
 }
 @Override
 public void usar(Jugador jugador, Jugador oponente) {

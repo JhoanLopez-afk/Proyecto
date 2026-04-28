@@ -10,9 +10,14 @@ public class Jugador {
     private Carta[] cementerio;
     private Carta[] baraja;
     private boolean cambioPosicion;
-
-
+    private boolean ataqueNegado = false;
+    private boolean battlePhaseTerminada = false;
     private boolean yaInvoco;
+    private boolean trampasBloqueadas = false;
+    private boolean magiaBloqueada = false;
+    private int indiceAtacanteRival = -1;
+    private int llamadaDeLosCondenados = -1;
+    private int indiceTrampaLlamada = -1;
 
     public Jugador(String nombreJugador, Carta[] barajaInicial) {
         this.nombreJugador = nombreJugador;
@@ -21,7 +26,7 @@ public class Jugador {
         this.mano = new Carta[6];
         this.campoMonstruos = new Carta[5];
         this.campoMagias = new Carta[5];
-        this.cementerio = new Carta[20];
+        this.cementerio = new Carta[25];
         this.ganador = false;
         this.yaInvoco = false;
         this.cambioPosicion = false;
@@ -67,10 +72,57 @@ public Carta[] getBaraja() {
     return baraja;
 }
 
+public boolean isAtaqueNegado() {
+    return ataqueNegado;
+}
+
+public void setAtaqueNegado(boolean ataqueNegado) {
+    this.ataqueNegado = ataqueNegado;
+}
+
+public boolean isBattlePhaseTerminada() {
+    return battlePhaseTerminada;
+}
+
+public void setBattlePhaseTerminada(boolean battlePhaseTerminada) {
+    this.battlePhaseTerminada = battlePhaseTerminada;
+}
+public void setTrampasBloqueadas(boolean b) {
+    this.trampasBloqueadas = b;
+}
+public boolean isTrampasBloqueadas() {
+    return trampasBloqueadas;  
+}
+public void setMagiaBloqueada(boolean b) {
+    this.magiaBloqueada = b;
+}
+public boolean isMagiaBloqueada() {
+    return magiaBloqueada;
+}
+public int getIndiceAtacanteRival() {
+    return indiceAtacanteRival;
+}
+public void setIndiceAtacanteRival(int indice) {
+    this.indiceAtacanteRival = indice;
+}
+public int getLlamadaDeLosCondenados() {
+    return llamadaDeLosCondenados;
+}
+public void setLlamadaDeLosCondenados(int indice) {
+    this.llamadaDeLosCondenados = indice;
+}
+public int getIndiceTrampaLlamada() {
+    return indiceTrampaLlamada;
+}
+public void setIndiceTrampaLlamada(int indice) {
+    this.indiceTrampaLlamada = indice;
+}
 
     public void resetTurno() {
         yaInvoco = false;
         cambioPosicion = false;
+        trampasBloqueadas = false;
+        magiaBloqueada = false;
     }
 
     public boolean tieneMonstruos() {
@@ -169,6 +221,9 @@ public Carta[] getBaraja() {
                 System.out.println("    ATK: " + m.getAtaque());
                 System.out.println("    DEF: " + m.getDefensa());
                 System.out.println("   Pos: " + m.getPosicion());
+                if (m.isParalizado()) {
+                    System.out.println(" /Paralizado/ ");
+                }
             }
 
             vacio = false;
@@ -207,6 +262,21 @@ public Carta[] getBaraja() {
         return;
     }
 
+    if (oponente.isMagiaBloqueada()) {
+         System.out.println("tu oponente bloqueo tu magia");
+         oponente.setMagiaBloqueada(false);
+         Carta magia = mano[indice];
+         mano[indice] = null;
+         for (int i = 0; i < cementerio.length; i++) {
+                if (cementerio[i] == null) {
+                    cementerio[i] = magia;
+                    magia.setEstado(Estado.CEMENTERIO);
+                    break;
+                }
+            }
+            return;
+    }
+
 
     Carta magia = mano[indice];
     mano[indice] = null;
@@ -226,12 +296,22 @@ public Carta[] getBaraja() {
    
 public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo) {
 
+    if (oponente.isAtaqueNegado()) {
+        System.out.println("El ataque fue negado.");
+        oponente.setAtaqueNegado(false);
+        return;
+    }
     if (indiceMiMounstro < 0 || indiceMiMounstro >= campoMonstruos.length || campoMonstruos[indiceMiMounstro] == null) {
         System.out.println("No existe un monstruo en esa posición para atacar");
         return;
     }
 
     Mounstro atacante = (Mounstro) campoMonstruos[indiceMiMounstro];
+
+    if (atacante.isParalizado()) {
+        System.out.println("El monstruo está paralizado y no puede atacar");
+        return;
+    }
 
     if (atacante.getPosicion() == Posicion.DEFENSA) {
     System.out.println("Un monstruo en defensa no puede atacar");
@@ -288,13 +368,30 @@ public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo)
         Carta c = campoMonstruos[indice];
         campoMonstruos[indice] = null;
 
+        if (c instanceof Mounstro) {
+            Mounstro m = (Mounstro) c;
+            if (m.isParalizado()) {
+                m.setParalizado(false);
+            }
+        }
+        if (indice == llamadaDeLosCondenados && indiceTrampaLlamada != -1) {
+            System.out.println("Llamada de los Condenados se destruye porque su monstruo fue destruido.");
+            campoMagias[indiceTrampaLlamada] = null;
+            llamadaDeLosCondenados = -1;
+            indiceTrampaLlamada = -1;
+        }
         for (int i = 0; i < cementerio.length; i++) {
             if (cementerio[i] == null) {
                 cementerio[i] = c;
+                c.setEstado(Estado.CEMENTERIO);
                 return;
             }
         }
     }
+
+    public Carta[] getCampoMagias() {
+    return campoMagias;
+}
 
     public void cambiarPosicionMonstruo(int indice, Posicion nuevaPosicion) {
         if (cambioPosicion) {
@@ -308,8 +405,60 @@ public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo)
         }
 
         Mounstro m = (Mounstro) campoMonstruos[indice];
+
+        if (m.isParalizado()) { 
+            System.out.println("El monstruo está paralizado y no puede cambiar de posición");
+            return;
+        }
+
         m.setPosicion(nuevaPosicion);
         cambioPosicion = true;
         System.out.println("Cambiaste la posición de " + m.getNombre() + " a " + nuevaPosicion);
     }
+    public void activarTrampaAtaque(Jugador defensor, Jugador atacante, int indiceAtacante) {
+        if (defensor.isTrampasBloqueadas()) {
+            System.out.println("tu oponente bloqueo tus trampas");
+            defensor.setTrampasBloqueadas(false);
+            return;
+        }
+        for (int i = 0; i < defensor.getMano().length; i++) {
+            if (defensor.getMano()[i] instanceof Trampa) {
+                Trampa t = (Trampa) defensor.getMano()[i];
+                System.out.println(defensor.getNombreJugador() + " activa trampa: " + t.getNombre());
+                defensor.getMano()[i] = null;
+                defensor.setIndiceAtacanteRival(indiceAtacante);
+                t.ejecutarEfecto(defensor, atacante);
+                for (int k = 0; k < defensor.getCementerio().length; k++) {
+                    if (defensor.getCementerio()[k] == null) {
+                        defensor.getCementerio()[k] = t;
+                        t.setEstado(Estado.CEMENTERIO);
+                        break;
+                    }
+                }
+                return;
+            }
+        }
+    }
+    public void destruirTrampaLlamada() {
+    if (indiceTrampaLlamada != -1) {
+        Carta trampa = campoMagias[indiceTrampaLlamada];
+        campoMagias[indiceTrampaLlamada] = null;
+        if (llamadaDeLosCondenados != -1 && campoMonstruos[llamadaDeLosCondenados] != null) {
+            System.out.println("El monstruo de Llamada de los Condenados es destruido.");
+            muereMounstro(llamadaDeLosCondenados);
+        }
+        llamadaDeLosCondenados = -1;
+        indiceTrampaLlamada = -1;
+
+        if (trampa != null) {
+            for (int i = 0; i < cementerio.length; i++) {
+                if (cementerio[i] == null) {
+                    cementerio[i] = trampa;
+                    trampa.setEstado(Estado.CEMENTERIO);
+                     break;
+                }
+            }
+        }
+    }
+}
 }

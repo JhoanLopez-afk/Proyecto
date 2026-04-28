@@ -46,6 +46,17 @@ public class FabricaCartas {
         cartas.add(new Magia("Reproduccion de hechizo",TipoCarta.MAGICA,true,"Manda al cementerio 2 Mágicas en tu mano",Estado.BARAJA));
         cartas.add(new Magia("Intercambio",TipoCarta.MAGICA,true,"Intercambian sus cartas",Estado.BARAJA));
         cartas.add(new Magia("Hinotama",TipoCarta.MAGICA,true,"Inflige 500 puntos de daño a tu adversario.",Estado.BARAJA));
-        return cartas;
-    }
+        //Trampas
+        cartas.add(new Trampa("Fuerza de espejo",TipoCarta.TRAMPA,true,"Cuando un monstruo de un adversario declara un ataque: destruye todos los monstruos en Posición de Ataque",Estado.BARAJA));
+        cartas.add(new Trampa("cilindros mágicos",TipoCarta.TRAMPA,true,"Cuando un monstruo del adversario declara un ataque: selecciona al monstruo atacante y, si lo haces, inflige daño a tu adversario igual a su ATK.",Estado.BARAJA));
+        cartas.add(new Trampa("Negar Ataque",TipoCarta.TRAMPA,true,"Cuando un monstruo del adversario declara un ataque: selecciona el monstruo atacante; niega el ataque, y después termina la Battle Phase.",Estado.BARAJA));
+        cartas.add(new Trampa("llamada de los condenados",TipoCarta.TRAMPA,true,"Activa esta carta seleccionado 1 monstruo en tu Cementerio; Invoca ese objetivo de Modo Especial en Posición de Ataque. Cuando esta carta deja el Campo, destruye ese monstruo. Cuando ese monstruo es destruido, destruye esta carta.",Estado.BARAJA));
+        cartas.add(new Trampa("Círculo Atahechizos",TipoCarta.TRAMPA,true,"Activa esta carta seleccionando 1 monstruo que controle tu adversario; éste no puede atacar o cambiar su posición de batalla. Cuando ese monstruo es destruido, destruye esta carta.",Estado.BARAJA));
+        cartas.add(new Trampa("Disruptor de Trampa",TipoCarta.TRAMPA,true,"Cuando tu adversario activa una Carta de Trampa durante la Battle Phase: niega la activación y, si lo haces, destrúyela.",Estado.BARAJA));
+        cartas.add(new Trampa("Disruptor Mágico",TipoCarta.TRAMPA,true,"Cuando una Carta Mágica es activada: descarta 1 carta; niega la activación y, si lo haces, destrúyela.",Estado.BARAJA));
+        cartas.add(new Trampa("Artilugio de Evacuación Compulsiva",TipoCarta.TRAMPA,true,"Selecciona 1 monstruo en el Campo; devuelve a la mano ese objetivo.",Estado.BARAJA));
+        cartas.add(new Trampa("Agujero Trampa Sin Fondo",TipoCarta.TRAMPA,true,"Cuando tu adversario Invoca uno o más monstruos con 1500 ATK o más: destruye ese o esos monstruos con 1500 ATK o más y, si lo haces, destiérralos.",Estado.BARAJA));
+        cartas.add(new Trampa("Juicio Solemne",TipoCarta.TRAMPA,true,"Cuando uno o más monstruos fueran a ser Invocados O una Carta Mágica/de Trampa es activada: paga la mitad de tus LP; niega la Invocación o activación y, si lo haces, destruye esa carta.",Estado.BARAJA));
+         return cartas;
+   } 
 }
