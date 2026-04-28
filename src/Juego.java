@@ -7,14 +7,14 @@ public class Juego {
         ArrayList<Carta> BarajaDeCartas = FabricaCartas.crearCartas();
         Collections.shuffle(BarajaDeCartas);
 
-        Carta[] barajaJugador1 = new Carta[20];
-        Carta[] barajaJugador2 = new Carta[20];
+        Carta[] barajaJugador1 = new Carta[25];
+        Carta[] barajaJugador2 = new Carta[25];
         
-        for(int i = 0; i < 40; i++){
-            if(i<20){
+        for(int i = 0; i < 50; i++){
+            if(i<25){
                 barajaJugador1[i] = BarajaDeCartas.get(i);
             }else{
-                barajaJugador2[i-20] = BarajaDeCartas.get(i);
+                barajaJugador2[i-25] = BarajaDeCartas.get(i);
             }
         }
 

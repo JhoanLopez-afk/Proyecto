@@ -4,7 +4,7 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         //Juego con interfaz gráfica
-
+        new VentanaJuego().setVisible(true);
         //JUEGO POR CONSOLA
        /** Scanner teclado = new Scanner(System.in);
         Jugador[] combatientes = Juego.iniciarJuego();
