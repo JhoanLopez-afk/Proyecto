@@ -333,11 +333,38 @@ public class VentanaJuego extends JFrame {
     Jugador rival  = jugadorRival();
     Carta carta = activo.getMano()[cartaSeleccionadaEnMano];
 
-    if (carta == null || !(carta instanceof Magia)) {
+    if (carta == null || (!(carta instanceof Magia) && !(carta instanceof Trampa))) {
         JOptionPane.showMessageDialog(this,
-            "La carta seleccionada no es una mágica.",
-            "No es mágica", JOptionPane.WARNING_MESSAGE);
+            "La carta seleccionada no es una mágica ni trampa.",
+            "No es mágica/trampa", JOptionPane.WARNING_MESSAGE);
         return;
+    }
+
+    if (carta instanceof Trampa) {
+    Trampa t = (Trampa) carta;
+    agregarLog(nombreActivo() + " activó trampa: " + t.getNombre());
+
+    if (t.getNombre().equals("Artilugio de Evacuación Compulsiva")) {
+        moverMagiaCementerio(jugadorActivo(), cartaSeleccionadaEnMano);
+        cartaSeleccionadaEnMano = -1;
+        manejarArtilugio(jugadorActivo(), jugadorRival());
+    } else if (t.getNombre().equals("Círculo Atahechizos")) {
+        moverMagiaCementerio(jugadorActivo(), cartaSeleccionadaEnMano);
+        cartaSeleccionadaEnMano = -1;
+        manejarCirculoAtahechizos(jugadorActivo(), jugadorRival());
+    } else if (t.getNombre().equals("llamada de los condenados")) {
+        moverMagiaCementerio(jugadorActivo(), cartaSeleccionadaEnMano);
+        cartaSeleccionadaEnMano = -1;
+        manejarLlamadaCondenados(jugadorActivo(), jugadorRival(), t);
+    } else {
+        t.ejecutarEfecto(jugadorActivo(), jugadorRival());
+        moverMagiaCementerio(jugadorActivo(), cartaSeleccionadaEnMano);
+        cartaSeleccionadaEnMano = -1;
+    }
+
+    actualizarUI();
+    revisarFinJuego();
+    return;
     }
 
     String nombre = carta.getNombre();
@@ -660,7 +687,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
             byte indObj = idxObj.get(opsObj.indexOf(selObj));
 
             agregarLog(nombreActivo() + " ataca con " + mAtac.getNombre());
-            rival.activarTrampaAtaque(rival, activo, indAtac);
+            activarTrampaRival(rival, activo, indAtac);
 
             if (!activo.isAtaqueNegado()) {
                 activo.atacar(indAtac, rival, indObj);
@@ -672,7 +699,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
 
         } else {
             agregarLog(nombreActivo() + " hace ataque directo con " + mAtac.getNombre());
-            rival.activarTrampaAtaque(rival, activo, indAtac);
+            activarTrampaRival(rival, activo, indAtac);
 
             if (!activo.isAtaqueNegado()) {
                 activo.atacar(indAtac, rival, (byte) -1);
@@ -966,4 +993,212 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         btn.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
         return btn;
     }
+
+    private void activarTrampaRival(Jugador defensor, Jugador atacante, int indiceAtacante) {
+    if (defensor.isTrampasBloqueadas()) {
+        agregarLog("Las trampas de " + defensor.getNombreJugador() + " están bloqueadas.");
+        defensor.setTrampasBloqueadas(false);
+        return;
+    }
+
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+
+    for (int i = 0; i < defensor.getMano().length; i++) {
+        if (defensor.getMano()[i] instanceof Trampa) {
+            ops.add(defensor.getMano()[i].getNombre());
+            idx.add(i);
+        }
+    }
+
+    if (ops.isEmpty()) return;
+
+    int resp = JOptionPane.showConfirmDialog(this,
+        "⚠ " + defensor.getNombreJugador() + ", ¿deseas activar una trampa?",
+        "Activar trampa",
+        JOptionPane.YES_NO_OPTION);
+
+    if (resp != JOptionPane.YES_OPTION) return;
+
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Selecciona la trampa a activar:",
+        "Trampas disponibles",
+        JOptionPane.PLAIN_MESSAGE,
+        null,
+        ops.toArray(),
+        ops.get(0));
+
+    if (sel == null) return;
+
+    int indiceTrampa = idx.get(ops.indexOf(sel));
+    Trampa t = (Trampa) defensor.getMano()[indiceTrampa];
+
+    agregarLog(defensor.getNombreJugador() + " activó trampa: " + t.getNombre());
+
+    defensor.getMano()[indiceTrampa] = null;
+    defensor.setIndiceAtacanteRival(indiceAtacante);
+
+    if (t.getNombre().equals("Artilugio de Evacuación Compulsiva")) {
+        manejarArtilugio(defensor, atacante);
+    } else if (t.getNombre().equals("Círculo Atahechizos")) {
+        manejarCirculoAtahechizos(defensor, atacante);
+    } else if (t.getNombre().equals("llamada de los condenados")) {
+        manejarLlamadaCondenados(defensor, atacante, t);
+    } else {
+        t.ejecutarEfecto(defensor, atacante);
+    }
+
+    if (!t.getNombre().equals("llamada de los condenados")) {
+        for (int k = 0; k < defensor.getCementerio().length; k++) {
+            if (defensor.getCementerio()[k] == null) {
+                defensor.getCementerio()[k] = t;
+                t.setEstado(Estado.CEMENTERIO);
+                break;
+            }
+        }
+    }
+
+    actualizarUI();
+}
+
+private void manejarArtilugio(Jugador jugador, Jugador oponente) {
+    String[] opciones = {"Mi campo (" + jugador.getNombreJugador() + ")",
+                         "Campo del oponente (" + oponente.getNombreJugador() + ")"};
+    int resp = JOptionPane.showOptionDialog(this,
+        "¿De qué campo quieres devolver un monstruo?",
+        "Artilugio de Evacuación Compulsiva",
+        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+        null, opciones, opciones[0]);
+
+    if (resp == JOptionPane.CLOSED_OPTION) return;
+
+    Jugador objetivo = (resp == 0) ? jugador : oponente;
+
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+    for (int i = 0; i < objetivo.getCampo().length; i++) {
+        if (objetivo.getCampo()[i] instanceof Mounstro) {
+            Mounstro m = (Mounstro) objetivo.getCampo()[i];
+            ops.add(m.getNombre() + " (" + m.getPosicion() + ")");
+            idx.add(i);
+        }
+    }
+
+    if (ops.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "No hay monstruos en ese campo.",
+            "Campo vacío", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Selecciona el monstruo a devolver a la mano:",
+        "Artilugio de Evacuación Compulsiva",
+        JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
+    if (sel == null) return;
+
+    int indice = idx.get(ops.indexOf(sel));
+    Carta carta = objetivo.getCampo()[indice];
+    objetivo.getCampo()[indice] = null;
+    ((Mounstro) carta).setParalizado(false);
+
+    for (int i = 0; i < objetivo.getMano().length; i++) {
+        if (objetivo.getMano()[i] == null) {
+            objetivo.getMano()[i] = carta;
+            carta.setEstado(Estado.MANO);
+            agregarLog(carta.getNombre() + " devuelto a la mano de "
+                + objetivo.getNombreJugador());
+            return;
+        }
+    }
+    agregarLog("La mano de " + objetivo.getNombreJugador() + " está llena.");
+}
+
+private void manejarCirculoAtahechizos(Jugador jugador, Jugador oponente) {
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+    for (int i = 0; i < oponente.getCampo().length; i++) {
+        if (oponente.getCampo()[i] instanceof Mounstro) {
+            Mounstro m = (Mounstro) oponente.getCampo()[i];
+            ops.add(m.getNombre() + " (" + m.getPosicion() + ")");
+            idx.add(i);
+        }
+    }
+
+    if (ops.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "No hay monstruos del oponente para paralizar.",
+            "Campo vacío", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Selecciona el monstruo a paralizar:",
+        "Círculo Atahechizos",
+        JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
+    if (sel == null) return;
+
+    int indice = idx.get(ops.indexOf(sel));
+    Mounstro m = (Mounstro) oponente.getCampo()[indice];
+    m.setParalizado(true);
+    agregarLog(m.getNombre() + " ha sido paralizado.");
+}
+
+private void manejarLlamadaCondenados(Jugador jugador, Jugador oponente, Trampa trampa) {
+    java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
+    for (int i = 0; i < jugador.getCementerio().length; i++) {
+        if (jugador.getCementerio()[i] instanceof Mounstro) {
+            ops.add(jugador.getCementerio()[i].getNombre());
+            idx.add(i);
+        }
+    }
+
+    if (ops.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+            "No hay monstruos en el cementerio.",
+            "Cementerio vacío", JOptionPane.INFORMATION_MESSAGE);
+        return;
+    }
+
+    int espacioMonstruo = -1;
+    for (int i = 0; i < jugador.getCampo().length; i++) {
+        if (jugador.getCampo()[i] == null) { espacioMonstruo = i; break; }
+    }
+    int espacioMagia = -1;
+    for (int i = 0; i < jugador.getCampoMagias().length; i++) {
+        if (jugador.getCampoMagias()[i] == null) { espacioMagia = i; break; }
+    }
+
+    if (espacioMonstruo == -1) {
+        JOptionPane.showMessageDialog(this, "Campo de monstruos lleno.");
+        return;
+    }
+    if (espacioMagia == -1) {
+        JOptionPane.showMessageDialog(this, "Campo de mágicas/trampas lleno.");
+        return;
+    }
+
+    String sel = (String) JOptionPane.showInputDialog(this,
+        "Selecciona el monstruo a revivir:",
+        "Llamada de los Condenados",
+        JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
+    if (sel == null) return;
+
+    int indice = idx.get(ops.indexOf(sel));
+    Carta carta = jugador.getCementerio()[indice];
+    jugador.getCementerio()[indice] = null;
+
+    Mounstro m = (Mounstro) carta;
+    m.setPosicion(Posicion.ATAQUE);
+    jugador.getCampo()[espacioMonstruo] = carta;
+    carta.setEstado(Estado.CAMPO);
+
+    jugador.getCampoMagias()[espacioMagia] = trampa;
+    trampa.setEstado(Estado.CAMPO);
+    jugador.setLlamadaDeLosCondenados(espacioMonstruo);
+    jugador.setIndiceTrampaLlamada(espacioMagia);
+
+    agregarLog(carta.getNombre() + " revivido en ATK por Llamada de los Condenados.");
+}
 }
