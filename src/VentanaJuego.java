@@ -642,6 +642,7 @@ private void enviarCementerio(Jugador jugador, Carta carta) {
         jugadorActivo().robarCarta();
         agregarLog("Turno de " + nombreActivo());
         actualizarUI();
+        revisarFinJuego();
     }
 
     private void verCementerio(Jugador jugador) {

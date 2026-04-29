@@ -153,6 +153,7 @@ public void setIndiceTrampaLlamada(int indice) {
         if (cartaNueva == null) {
             System.out.println(nombreJugador + " no puede robar, por ende perdiste");
             ganador = false;
+            this.vida = 0;
             return;
         }
 
