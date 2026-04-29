@@ -398,6 +398,9 @@ private void accionActivarMagicaDesdeCampo() {
     int indiceCampo = idx.get(ops.indexOf(sel));
     Magia magia = (Magia) activo.getCampoMagias()[indiceCampo];
 
+    boolean magiaNegada = verificarDisruptorMagico(rival, activo, magia, indiceCampo);
+    if (magiaNegada) return;
+
     if (rival.isMagiaBloqueada()) {
         agregarLog(rival.getNombreJugador() + " bloqueó tu mágica: " + magia.getNombre());
         rival.setMagiaBloqueada(false);
@@ -840,19 +843,6 @@ private void enviarCementerio(Jugador jugador, Carta carta) {
 
    //Funciones
 
-    private void moverMagiaCementerio(Jugador activo, int indice) {
-        Carta magia = activo.getMano()[indice];
-        if (magia == null) return;
-        activo.getMano()[indice] = null;
-        for (int i = 0; i < activo.getCementerio().length; i++) {
-            if (activo.getCementerio()[i] == null) {
-                activo.getCementerio()[i] = magia;
-                magia.setEstado(Estado.CEMENTERIO);
-                break;
-            }
-        }
-    }
-
     private Jugador jugadorActivo() { return turnoDe == 1 ? jugador1 : jugador2; }
     private Jugador jugadorRival()  { return turnoDe == 1 ? jugador2 : jugador1; }
     private String  nombreActivo()  { return jugadorActivo().getNombreJugador(); }
@@ -903,10 +893,11 @@ private void enviarCementerio(Jugador jugador, Carta carta) {
     java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
 
     for (int i = 0; i < defensor.getCampoMagias().length; i++) {
-        if (defensor.getCampoMagias()[i] instanceof Trampa) {
-            ops.add(defensor.getCampoMagias()[i].getNombre());
+        Carta cartaCampo = defensor.getCampoMagias()[i];
+        if (cartaCampo instanceof Trampa && i != defensor.getIndiceTrampaLlamada()) {
+            ops.add(cartaCampo.getNombre());
             idx.add(i);
-        }
+            }
     }
 
     if (ops.isEmpty()) return;
@@ -915,18 +906,27 @@ private void enviarCementerio(Jugador jugador, Carta carta) {
         defensor.getNombreJugador() + ", ¿deseas activar una trampa?",
         "Activar trampa", JOptionPane.YES_NO_OPTION);
 
-    if (resp != JOptionPane.YES_OPTION) return;
+    if (resp != JOptionPane.YES_OPTION) {
+        return;
+    }
 
     String sel = (String) JOptionPane.showInputDialog(this,
         "Selecciona la trampa a activar:", "Trampas disponibles",
         JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
 
-    if (sel == null) return;
+    if (sel == null) {
+        return;
+    }
 
     int indiceCampo = idx.get(ops.indexOf(sel));
     Trampa t = (Trampa) defensor.getCampoMagias()[indiceCampo];
 
     defensor.getCampoMagias()[indiceCampo] = null;
+
+    boolean trampaNegada = verificarDisruptorTrampa(atacante, defensor, t);
+    if (trampaNegada){
+        return;
+    }
 
     agregarLog(defensor.getNombreJugador() + " activó trampa: " + t.getNombre());
     defensor.setIndiceAtacanteRival(indiceAtacante);
@@ -938,6 +938,11 @@ private void enviarCementerio(Jugador jugador, Carta carta) {
         manejarCirculoAtahechizos(defensor, atacante);
     } else if (t.getNombre().equals("llamada de los condenados")) {
         manejarLlamadaCondenados(defensor, atacante, t);
+    } else if (t.getNombre().equals("Disruptor de Trampa")) { 
+        atacante.setTrampasBloqueadas(true);
+        agregarLog("¡Trampas de " + atacante.getNombreJugador() + " bloqueadas!");
+    } else if (t.getNombre().equals("Disruptor Mágico")) {
+        manejarDisruptorMagicoEnAtaque(defensor, atacante);
     } else {
         t.ejecutarEfecto(defensor, atacante);
     }
@@ -979,7 +984,122 @@ private void manejarMonstruoRenacidoDesdeCampo(Jugador activo, Jugador rival, Ma
     enviarCementerio(activo, magia);
     actualizarUI();
 }
+private boolean verificarDisruptorMagico(Jugador rival, Jugador activo, Magia magia, int indiceCampo) {
+    int indiceDisruptor = -1;
 
+    for (int i = 0; i < rival.getCampoMagias().length; i++) {
+        Carta c = rival.getCampoMagias()[i];
+
+        if (c instanceof Trampa && c.getNombre().equals("Disruptor Mágico")) {
+            indiceDisruptor = i;
+            break;
+        }
+    }
+
+    if (indiceDisruptor == -1) {
+        return false;
+    }
+
+    int resp = JOptionPane.showConfirmDialog(
+        this,
+        rival.getNombreJugador() + ", ¿deseas activar Disruptor Mágico para negar " + magia.getNombre() + "?",
+        "Disruptor Mágico",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (resp != JOptionPane.YES_OPTION) {
+        return false;
+    }
+
+    java.util.ArrayList<String> opsDes = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idxDes = new java.util.ArrayList<>();
+
+    for (int i = 0; i < rival.getMano().length; i++) {
+        if (rival.getMano()[i] != null) {
+            opsDes.add(rival.getMano()[i].getNombre());
+            idxDes.add(i);
+        }
+    }
+
+    if (opsDes.isEmpty()) {
+        agregarLog(rival.getNombreJugador() + " no tiene cartas para descartar. Disruptor Mágico sin efecto.");
+        return false;
+    }
+
+    String selDes = (String) JOptionPane.showInputDialog(
+        this,
+        rival.getNombreJugador() + ", descarta una carta:",
+        "Disruptor Mágico",
+        JOptionPane.PLAIN_MESSAGE,
+        null,
+        opsDes.toArray(),
+        opsDes.get(0)
+    );
+
+    if (selDes == null) {
+        return false;
+    }
+
+    int iDes = idxDes.get(opsDes.indexOf(selDes));
+    Carta descartada = rival.getMano()[iDes];
+    rival.getMano()[iDes] = null;
+
+    enviarCementerio(rival, descartada);
+    agregarLog(rival.getNombreJugador() + " descartó " + descartada.getNombre());
+
+    activo.getCampoMagias()[indiceCampo] = null;
+    enviarCementerio(activo, magia);
+
+    Trampa disruptor = (Trampa) rival.getCampoMagias()[indiceDisruptor];
+    rival.getCampoMagias()[indiceDisruptor] = null;
+
+    enviarCementerio(rival, disruptor);
+
+    agregarLog("¡" + magia.getNombre() + " fue negada por Disruptor Mágico!");
+    actualizarUI();
+
+    return true;
+}
+private boolean verificarDisruptorTrampa(Jugador atacante, Jugador defensor, Trampa trampaActivada) {
+    int indiceDisruptor = -1;
+
+    for (int i = 0; i < atacante.getCampoMagias().length; i++) {
+        Carta c = atacante.getCampoMagias()[i];
+
+        if (c instanceof Trampa && c.getNombre().equals("Disruptor de Trampa")) {
+            indiceDisruptor = i;
+            break;
+        }
+    }
+
+    if (indiceDisruptor == -1) {
+        return false;
+    }
+
+    int resp = JOptionPane.showConfirmDialog(
+        this,
+        atacante.getNombreJugador() + ", ¿deseas activar Disruptor de Trampa para negar "
+        + trampaActivada.getNombre() + "?",
+        "Disruptor de Trampa",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (resp != JOptionPane.YES_OPTION) {
+        return false;
+    }
+
+    Trampa disruptor = (Trampa) atacante.getCampoMagias()[indiceDisruptor];
+    atacante.getCampoMagias()[indiceDisruptor] = null;
+
+    enviarCementerio(atacante, disruptor);
+    enviarCementerio(defensor, trampaActivada);
+
+    agregarLog(atacante.getNombreJugador() + " negó " + trampaActivada.getNombre() + " con Disruptor de Trampa."
+    );
+
+    actualizarUI();
+    return true;
+}
 private void manejarMagiaRobarDescartarDesdeCampo(Jugador activo, int robar,
         int descartar, boolean soloMagias, Magia magia) {
     for (int r = 0; r < robar; r++) activo.robarCarta();
@@ -1051,14 +1171,10 @@ private void manejarIntercambioDesdeCampo(Jugador activo, Jugador rival, Magia m
     enviarCementerio(activo, magia);
     actualizarUI();
 }
+
 private void manejarTifonDesdeCampo(Jugador activo, Jugador rival, Magia magia) {
     java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
     java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();
-    for (int i = 0; i < rival.getCampo().length; i++) {
-        if (rival.getCampo()[i] != null) {
-            ops.add(rival.getCampo()[i].getNombre() + " [Monstruo]"); idx.add(i);
-        }
-    }
     for (int i = 0; i < rival.getCampoMagias().length; i++) {
         if (rival.getCampoMagias()[i] != null) {
             ops.add(rival.getCampoMagias()[i].getNombre() + " [M/T]"); idx.add(-(i+1));
@@ -1073,16 +1189,12 @@ private void manejarTifonDesdeCampo(Jugador activo, Jugador rival, Magia magia) 
         JOptionPane.PLAIN_MESSAGE, null, ops.toArray(), ops.get(0));
     if (sel == null) { enviarCementerio(activo, magia); return; }
     int i = idx.get(ops.indexOf(sel));
-    if (i >= 0) {
-        rival.muereMounstro(i);
-        agregarLog("Destruiste un monstruo del rival.");
-    } else {
+
         int im = -(i+1);
         Carta c = rival.getCampoMagias()[im];
         rival.getCampoMagias()[im] = null;
         enviarCementerio(rival, c);
         agregarLog("Destruiste una mágica/trampa del rival.");
-    }
     enviarCementerio(activo, magia);
     actualizarUI();
 }
@@ -1169,7 +1281,32 @@ private void manejarCirculoAtahechizos(Jugador jugador, Jugador oponente) {
     m.setParalizado(true);
     agregarLog(m.getNombre() + " ha sido paralizado.");
 }
-
+private void manejarDisruptorMagicoEnAtaque(Jugador defensor, Jugador atacante) {
+    java.util.ArrayList<String>  opsDes = new java.util.ArrayList<>();
+    java.util.ArrayList<Integer> idxDes = new java.util.ArrayList<>();
+    for (int i = 0; i < defensor.getMano().length; i++) {
+        if (defensor.getMano()[i] != null) {
+            opsDes.add(defensor.getMano()[i].getNombre());
+            idxDes.add(i);
+        }
+    }
+    if (opsDes.isEmpty()) {
+        agregarLog(defensor.getNombreJugador() + " no tiene cartas para descartar. Sin efecto.");
+        return;
+    }
+    String selDes = (String) JOptionPane.showInputDialog(this,
+        defensor.getNombreJugador() + ", descarta una carta:",
+        "Disruptor Mágico",
+        JOptionPane.PLAIN_MESSAGE, null, opsDes.toArray(), opsDes.get(0));
+    if (selDes == null) return;
+    int iDes = idxDes.get(opsDes.indexOf(selDes));
+    Carta descartada = defensor.getMano()[iDes];
+    defensor.getMano()[iDes] = null;
+    enviarCementerio(defensor, descartada);
+    atacante.setMagiaBloqueada(true);
+    agregarLog(defensor.getNombreJugador() + " descartó " + descartada.getNombre()
+        + ". Mágicas del rival bloqueadas.");
+}
 private void manejarLlamadaCondenados(Jugador jugador, Jugador oponente, Trampa trampa) {
     java.util.ArrayList<String>  ops = new java.util.ArrayList<>();
     java.util.ArrayList<Integer> idx = new java.util.ArrayList<>();

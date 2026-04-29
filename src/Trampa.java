@@ -138,6 +138,53 @@ public class Trampa extends Carta implements Activable {
             oponente.setVida((short)(oponente.getVida() - daño));
             System.out.println(atacante.getNombre() + " ha recibido " + daño + " puntos de daño.");
         }
+        else if (getNombre().equals("Disruptor de Trampa")) {
+            oponente.setTrampasBloqueadas(true);
+            System.out.println("Las trampas del rival están bloqueadas este turno.");
+        }
+        else if (getNombre().equals("Disruptor Mágico")) {
+            boolean tieneCartas = false;
+                for (int i = 0; i < jugador.getMano().length; i++) {
+                    if (jugador.getMano()[i] != null) {
+                    tieneCartas = true;
+                    break;
+        }
+    }
+
+                if (!tieneCartas) {
+                System.out.println("No tienes cartas para descartar. Efecto cancelado.");
+                return;
+        }
+
+            System.out.println("Mano de " + jugador.getNombreJugador() + ":");
+            for (int i = 0; i < jugador.getMano().length; i++) {
+                if (jugador.getMano()[i] != null) {
+                System.out.println(i + ": " + jugador.getMano()[i].getNombre());
+        }
+    }
+
+            System.out.print("Elige el índice de la carta a descartar: ");
+            int opcion = sc.nextInt();
+
+            if (opcion >= 0 && opcion < jugador.getMano().length && jugador.getMano()[opcion] != null) {
+
+                Carta descartada = jugador.getMano()[opcion];
+                jugador.getMano()[opcion] = null;
+
+                for (int k = 0; k < jugador.getCementerio().length; k++) {
+                    if (jugador.getCementerio()[k] == null) {
+                        jugador.getCementerio()[k] = descartada;
+                        descartada.setEstado(Estado.CEMENTERIO);
+                        break;
+                }
+            }
+
+            System.out.println("Descartaste: " + descartada.getNombre());
+        }
+
+            oponente.setMagiaBloqueada(true);
+            System.out.println("La mágica del rival fue negada.");
+    }
         else if (getNombre().equals("llamada de los condenados")) {
             boolean existeMounstro = false;
             System.out.println("Cementerio de " + jugador.getNombreJugador() + ":");
