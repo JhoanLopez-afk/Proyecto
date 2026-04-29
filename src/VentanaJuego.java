@@ -22,7 +22,7 @@ public class VentanaJuego extends JFrame {
     // Slots de la mano
     private JButton[] slotsMano = new JButton[5];
 
-    // ── Botones de acción ────────────────────────────────────────────
+    //Botones de acción 
     private JButton btnInvocar;
     private JButton btnMagia;
     private JButton btnAtacar;
@@ -31,21 +31,19 @@ public class VentanaJuego extends JFrame {
     private JButton btnCementerioJ1;
     private JButton btnCementerioJ2;
 
-    // ── Info LP ──────────────────────────────────────────────────────
+    //info lp
     private JLabel lblLPJ1, lblLPJ2;
     private JProgressBar barraVidaJ1, barraVidaJ2;
 
-    // ── Info turno ───────────────────────────────────────────────────
+    // info turno
     private JLabel lblTurno;
     private JLabel lblFase;
     private JLabel lblMano;
 
-    // ── Log ──────────────────────────────────────────────────────────
+    // historial
     private JTextArea areaLog;
 
-    // ─────────────────────────────────────────────────────────────────
-    //  CONSTRUCTOR
-    // ─────────────────────────────────────────────────────────────────
+   //constructor
     public VentanaJuego() {
         Jugador[] combatientes = Juego.iniciarJuego();
         jugador1 = combatientes[0];
@@ -65,12 +63,10 @@ public class VentanaJuego extends JFrame {
         agregarLog("Turno de " + jugador1.getNombreJugador());
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  CONSTRUCCIÓN DE LA UI
-    // ─────────────────────────────────────────────────────────────────
+    // Diseño de la UI
     private void construirUI() {
         JPanel raiz = new JPanel(new BorderLayout(5, 5));
-        raiz.setBackground(new Color(20, 60, 30));
+        raiz.setBackground(new Color(15, 30, 70));
         raiz.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         raiz.add(crearBarraLP(jugador2, false), BorderLayout.NORTH);
@@ -80,10 +76,10 @@ public class VentanaJuego extends JFrame {
         add(raiz);
     }
 
-    // ── Barra de LP ──────────────────────────────────────────────────
+    // Barra de LP
     private JPanel crearBarraLP(Jugador jugador, boolean esJ1) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 5));
-        panel.setBackground(new Color(10, 30, 15));
+        panel.setBackground(new Color(10, 20, 50));
         panel.setBorder(BorderFactory.createLineBorder(new Color(255, 215, 0), 1));
 
         JLabel lblNombre = new JLabel(jugador.getNombreJugador());
@@ -97,7 +93,7 @@ public class VentanaJuego extends JFrame {
         JProgressBar barra = new JProgressBar(0, 8000);
         barra.setValue(jugador.getVida());
         barra.setPreferredSize(new Dimension(280, 18));
-        barra.setForeground(esJ1 ? new Color(0, 200, 80) : new Color(200, 50, 50));
+        barra.setForeground(esJ1 ? new Color(0, 120, 80) : new Color(200, 50, 50));
         barra.setBackground(new Color(40, 40, 40));
 
         if (esJ1) { lblLPJ1 = lblLP; barraVidaJ1 = barra; }
@@ -109,7 +105,7 @@ public class VentanaJuego extends JFrame {
         return panel;
     }
 
-    // ── Panel central ─────────────────────────────────────────────────
+    // Panel central
     private JPanel crearPanelCentro() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.setBackground(new Color(20, 60, 30));
@@ -118,14 +114,14 @@ public class VentanaJuego extends JFrame {
         return panel;
     }
 
-    // ── Tablero: campo J2 + campo J1 + mano ──────────────────────────
+    // Tablero: campo J2 + campo J1 + mano
     private JPanel crearTablero() {
         JPanel panel = new JPanel(new BorderLayout(0, 5));
-        panel.setBackground(new Color(20, 60, 30));
+        panel.setBackground(new Color(15, 30, 70));
 
         // Info turno y fase
         JPanel panelInfo = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 4));
-        panelInfo.setBackground(new Color(10, 40, 20));
+        panelInfo.setBackground(new Color(10, 25, 60));
         lblTurno = new JLabel("Turno: " + jugador1.getNombreJugador());
         lblTurno.setFont(new Font("SansSerif", Font.BOLD, 13));
         lblTurno.setForeground(new Color(255, 215, 0));
@@ -137,7 +133,7 @@ public class VentanaJuego extends JFrame {
 
         // Los dos campos
         JPanel campos = new JPanel(new GridLayout(2, 1, 0, 5));
-        campos.setBackground(new Color(20, 60, 30));
+        campos.setBackground(new Color(15, 30, 70));
         campos.add(crearPanelCampo(false)); // J2 arriba
         campos.add(crearPanelCampo(true));  // J1 abajo
 
@@ -147,10 +143,10 @@ public class VentanaJuego extends JFrame {
         return panel;
     }
 
-    // ── Panel de un campo (5 slots) ───────────────────────────────────
+    // Panel de un campo (5 slots)
     private JPanel crearPanelCampo(boolean esJ1) {
         JPanel wrap = new JPanel(new BorderLayout(0, 2));
-        wrap.setBackground(new Color(20, 60, 30));
+        wrap.setBackground(new Color(15, 30, 70));
 
         JLabel titulo = new JLabel(esJ1
             ? "  Tu campo (" + jugador1.getNombreJugador() + "):"
@@ -161,9 +157,9 @@ public class VentanaJuego extends JFrame {
             : new Color(255, 100, 100));
 
         JPanel panelSlots = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 5));
-        panelSlots.setBackground(new Color(15, 50, 25));
+        panelSlots.setBackground(new Color(10, 35, 80));
         panelSlots.setBorder(BorderFactory.createLineBorder(
-            esJ1 ? new Color(0, 150, 60) : new Color(150, 0, 0), 1));
+            esJ1 ? new Color(0, 80, 180) : new Color(150, 0, 0), 1));
 
         for (int i = 0; i < 5; i++) {
             JButton slot = crearSlotVacio();
@@ -186,14 +182,14 @@ public class VentanaJuego extends JFrame {
     // ── Panel de la mano ─────────────────────────────────────────────
     private JPanel crearPanelMano() {
         JPanel wrap = new JPanel(new BorderLayout(0, 2));
-        wrap.setBackground(new Color(20, 60, 30));
+        wrap.setBackground(new Color(15, 30, 70));
 
         lblMano = new JLabel("  Mano de " + jugador1.getNombreJugador() + ":");
         lblMano.setFont(new Font("SansSerif", Font.BOLD, 11));
         lblMano.setForeground(new Color(255, 215, 0));
 
         JPanel panelSlots = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 5));
-        panelSlots.setBackground(new Color(10, 30, 50));
+        panelSlots.setBackground(new Color(10, 20, 60));
         panelSlots.setBorder(BorderFactory.createLineBorder(new Color(255, 215, 0), 1));
 
         for (int i = 0; i < 5; i++) {
@@ -213,7 +209,7 @@ public class VentanaJuego extends JFrame {
     private JPanel crearPanelDerecho() {
         JPanel panel = new JPanel(new BorderLayout(0, 8));
         panel.setPreferredSize(new Dimension(165, 0));
-        panel.setBackground(new Color(10, 30, 15));
+        panel.setBackground(new Color(10, 20, 50));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         // Botones de acción
@@ -260,13 +256,13 @@ public class VentanaJuego extends JFrame {
         areaLog.setEditable(false);
         areaLog.setLineWrap(true);
         areaLog.setWrapStyleWord(true);
-        areaLog.setBackground(new Color(5, 15, 10));
-        areaLog.setForeground(new Color(180, 255, 180));
+        areaLog.setBackground(new Color(5, 10, 30));
+        areaLog.setForeground(new Color(180, 210, 255));
         areaLog.setFont(new Font("SansSerif", Font.PLAIN, 10));
 
         JScrollPane scrollLog = new JScrollPane(areaLog);
         scrollLog.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(0, 150, 60), 1),
+            BorderFactory.createLineBorder(new Color(0, 80, 180), 1),
             "Comentarios del juego", 0, 0,
             new Font("SansSerif", Font.BOLD, 10),
             new Color(0, 200, 80)));
@@ -370,7 +366,7 @@ public class VentanaJuego extends JFrame {
     String nombre = carta.getNombre();
     agregarLog(nombreActivo() + " usó: " + nombre);
 
-    // ── Magias sin selección ─────────────────────────────────────────
+    // ── Magias sin selección
     if (nombre.equals("Olla de la codicia")) {
         activo.robarCarta();
         activo.robarCarta();
@@ -794,9 +790,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
             JOptionPane.PLAIN_MESSAGE);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  SELECCIÓN CON CLICK EN SLOTS
-    // ─────────────────────────────────────────────────────────────────
+  // seleccion con click
 
     private void seleccionarCartaMano(int indice) {
         cartaSeleccionadaEnMano = indice;
@@ -821,9 +815,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  ACTUALIZACIÓN DE LA UI
-    // ─────────────────────────────────────────────────────────────────
+  //Actualizacion de la UI
 
     private void actualizarUI() {
         lblLPJ1.setText("LP: " + jugador1.getVida());
@@ -884,28 +876,34 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  IMÁGENES
-    // ─────────────────────────────────────────────────────────────────
+    //Cartas con imagenes
 
     private void cargarImagenEnSlot(JButton slot, String nombreCarta) {
-        File img = new File("src/imagenes/" + nombreCarta + ".png");
-        if (!img.exists()) img = new File("src/imagenes/" + nombreCarta + ".jpg");
-
-        if (img.exists()) {
-            ImageIcon icono = new ImageIcon(img.getPath());
-            Image imagen = icono.getImage()
-                .getScaledInstance(ANCHO_CARTA, ALTO_CARTA, Image.SCALE_SMOOTH);
-            slot.setIcon(new ImageIcon(imagen));
-            slot.setText("");
-        } else {
-            slot.setIcon(null);
+    try {
+        String rutaBase = System.getProperty("user.dir");
+        File img = new File(rutaBase + "/src/imagenes/" + nombreCarta + ".jpg");
+        if (!img.exists()) {
+            img = new File(rutaBase + "/src/imagenes/" + nombreCarta + ".png");
         }
+        if (img.exists()) {
+            java.awt.image.BufferedImage bi = javax.imageio.ImageIO.read(img);
+            if (bi != null) {
+                Image imagen = bi.getScaledInstance(ANCHO_CARTA, ALTO_CARTA, Image.SCALE_SMOOTH);
+                slot.setIcon(new ImageIcon(imagen));
+                slot.setText("");
+            } else {
+                System.out.println("ImageIO no pudo leer: " + nombreCarta);
+                slot.setIcon(null);
+            }
+        }
+    } catch (Exception e) {
+        System.out.println("Error cargando: " + nombreCarta + " -> " + e.getMessage());
+        slot.setIcon(null);
     }
+}
+    
 
-    // ─────────────────────────────────────────────────────────────────
-    //  FIN DEL JUEGO
-    // ─────────────────────────────────────────────────────────────────
+    //fin del juego
 
     private void revisarFinJuego() {
         if (jugador1.getVida() <= 0 || jugador2.getVida() <= 0) {
@@ -928,7 +926,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
             String frase = frases[(int)(Math.random() * frases.length)];
 
             JOptionPane.showMessageDialog(this,
-                "⚡ ¡" + ganador + " gana el duelo! ⚡\n\n"
+                "¡¡" + ganador + " gana el duelo! \n\n"
                 + perdedor + " ha sido derrotado.\n\n"
                 + "\"" + frase + "\"",
                 "¡Duelo terminado!",
@@ -938,9 +936,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    //  UTILIDADES
-    // ─────────────────────────────────────────────────────────────────
+   //Funciones
 
     private void moverMagiaCementerio(Jugador activo, int indice) {
         Carta magia = activo.getMano()[indice];
@@ -1014,7 +1010,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
     if (ops.isEmpty()) return;
 
     int resp = JOptionPane.showConfirmDialog(this,
-        "⚠ " + defensor.getNombreJugador() + ", ¿deseas activar una trampa?",
+         defensor.getNombreJugador() + ", ¿deseas activar una trampa?",
         "Activar trampa",
         JOptionPane.YES_NO_OPTION);
 
