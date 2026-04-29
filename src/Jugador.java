@@ -117,7 +117,9 @@ public int getIndiceTrampaLlamada() {
 public void setIndiceTrampaLlamada(int indice) {
     this.indiceTrampaLlamada = indice;
 }
-
+public boolean isYaInvoco() {
+    return yaInvoco;
+}
     public void resetTurno() {
         yaInvoco = false;
         cambioPosicion = false;
@@ -494,6 +496,28 @@ public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo)
             }
         }
     }
+    public void invocarMonstruoConSacrificio(int indice, Posicion posicion) {
+    if (indice < 0 || indice >= mano.length || mano[indice] == null) {
+        System.out.println("Posición inválida");
+        return;
+    }
+    if (!(mano[indice] instanceof Mounstro)) {
+        System.out.println("No es un monstruo");
+        return;
+    }
+    for (int i = 0; i < campoMonstruos.length; i++) {
+        if (campoMonstruos[i] == null) {
+            Mounstro m = (Mounstro) mano[indice];
+            m.setPosicion(posicion);
+            campoMonstruos[i] = mano[indice];
+            mano[indice] = null;
+            yaInvoco = true;
+            System.out.println("Invocaste: " + campoMonstruos[i].getNombre() + " en posición " + posicion);
+            return;
+        }
+    }
+    System.out.println("Campo lleno");
+}
     public void destruirTrampaLlamada() {
     if (indiceTrampaLlamada != -1) {
         Carta trampa = campoMagias[indiceTrampaLlamada];

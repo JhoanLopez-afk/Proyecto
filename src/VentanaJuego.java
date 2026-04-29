@@ -305,95 +305,77 @@ public class VentanaJuego extends JFrame {
     //  ACCIONES
     // ─────────────────────────────────────────────────────────────────
 
-  private void accionInvocar() {
+private void accionInvocar() {
     if (cartaSeleccionadaEnMano == -1) {
-      JOptionPane.showMessageDialog(
-        this,
-        "Primero selecciona un monstruo de tu mano.",
-        "Sin selección",
-        JOptionPane.WARNING_MESSAGE
-      );
-      return;
+        JOptionPane.showMessageDialog(this,
+            "Primero selecciona un monstruo de tu mano.",
+            "Sin selección", JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
     Jugador activo = jugadorActivo();
     Carta carta = activo.getMano()[cartaSeleccionadaEnMano];
 
     if (carta == null || !(carta instanceof Mounstro)) {
-      JOptionPane.showMessageDialog(
-        this,
-        "La carta seleccionada no es un monstruo.",
-        "No es monstruo",
-        JOptionPane.WARNING_MESSAGE
-      );
-      return;
+        JOptionPane.showMessageDialog(this,
+            "La carta seleccionada no es un monstruo.",
+            "No es monstruo", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    if (activo.isYaInvoco()) {
+        JOptionPane.showMessageDialog(this,
+            "Ya invocaste un monstruo este turno.",
+            "Ya invocaste", JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
     Mounstro m = (Mounstro) carta;
     int estrellas = activo.obtenerNumeroEstrellas(m.getEstrellas());
 
     if (estrellas >= 5 && estrellas <= 6) {
-      if (!activo.tieneMonstruos()) {
-        JOptionPane.showMessageDialog(
-          this,
-          "Necesitas 1 monstruo en el campo para invocar a " + m.getNombre(),
-          "Sin sacrificio",
-          JOptionPane.WARNING_MESSAGE
-        );
-        return;
-      }
-
-      boolean sacrificioOk = pedirSacrificios(activo, 1, m.getNombre());
-
-      if (!sacrificioOk) {
-        return;
-      }
+        if (!activo.tieneMonstruos()) {
+            JOptionPane.showMessageDialog(this,
+                "Necesitas 1 monstruo en el campo para invocar a " + m.getNombre(),
+                "Sin sacrificio", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        boolean sacrificioOk = pedirSacrificios(activo, 1, m.getNombre());
+        if (!sacrificioOk) return;
 
     } else if (estrellas >= 7) {
-      if (activo.contarMonstruos() < 2) {
-        JOptionPane.showMessageDialog(
-          this,
-          "Necesitas 2 monstruos en el campo para invocar a " + m.getNombre(),
-          "Sin sacrificios",
-          JOptionPane.WARNING_MESSAGE
-        );
-        return;
-      }
-
-      boolean sacrificioOk = pedirSacrificios(activo, 2, m.getNombre());
-
-      if (!sacrificioOk) {
-        return;
-      }
+        if (activo.contarMonstruos() < 2) {
+            JOptionPane.showMessageDialog(this,
+                "Necesitas 2 monstruos en el campo para invocar a " + m.getNombre(),
+                "Sin sacrificios", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        boolean sacrificioOk = pedirSacrificios(activo, 2, m.getNombre());
+        if (!sacrificioOk) return;
     }
 
     String[] opciones = {"ATAQUE", "DEFENSA"};
+    int resp = JOptionPane.showOptionDialog(this,
+        "¿En qué posición invocar a " + carta.getNombre() + "?",
+        "Posición de invocación",
+        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+        null, opciones, opciones[0]);
 
-    int resp = JOptionPane.showOptionDialog(
-      this,
-      "¿En qué posición invocar a " + carta.getNombre() + "?",
-      "Posición de invocación",
-      JOptionPane.DEFAULT_OPTION,
-      JOptionPane.QUESTION_MESSAGE,
-      null,
-      opciones,
-      opciones[0]
-    );
-
-    if (resp == JOptionPane.CLOSED_OPTION) {
-      return;
-    }
+    if (resp == JOptionPane.CLOSED_OPTION) return;
 
     Posicion pos = (resp == 1) ? Posicion.DEFENSA : Posicion.ATAQUE;
 
-    activo.invocarMonstruo(cartaSeleccionadaEnMano, pos);
+    if (estrellas >= 5) {
+        activo.invocarMonstruoConSacrificio(cartaSeleccionadaEnMano, pos);
+    } else {
+        activo.invocarMonstruo(cartaSeleccionadaEnMano, pos);
+    }
+
     agregarLog(nombreActivo() + " invocó: " + carta.getNombre() + " en " + pos);
-
     cartaSeleccionadaEnMano = -1;
-
     actualizarUI();
     revisarFinJuego();
-  }
+}
 
   private boolean pedirSacrificios(Jugador activo, int cantidad, String nombreMonstruo) {
     for (int s = 0; s < cantidad; s++) {
