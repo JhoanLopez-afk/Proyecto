@@ -182,35 +182,84 @@ public void setIndiceTrampaLlamada(int indice) {
    
     public void invocarMonstruo(int indice, Posicion posicion) {
 
-        if (yaInvoco) {
-            System.out.println("Ya invocaste este turno");
-            return;
-        }
-
-        if (indice < 0 || indice >= mano.length || mano[indice] == null) {
-            System.out.println("Posición inválida");
-            return;
-        }
-
-        if (!(mano[indice] instanceof Mounstro)) {
-            System.out.println("No es un monstruo");
-            return;
-        }
-
-        for (int i = 0; i < campoMonstruos.length; i++) {
-            if (campoMonstruos[i] == null) {
-                Mounstro m = (Mounstro) mano[indice];
-                m.setPosicion(posicion);
-                campoMonstruos[i] = mano[indice];
-                mano[indice] = null;
-                yaInvoco = true;
-                System.out.println("Invocaste: " + campoMonstruos[i].getNombre() + " en posición " + posicion);
-                return;
-            }
-        }
-
-        System.out.println("Campo lleno");
+    if (yaInvoco) {
+        System.out.println("Ya invocaste este turno");
+        return;
     }
+
+    if (indice < 0 || indice >= mano.length || mano[indice] == null) {
+        System.out.println("Posición inválida");
+        return;
+    }
+
+    if (!(mano[indice] instanceof Mounstro)) {
+        System.out.println("No es un monstruo");
+        return;
+    }
+
+    for (int i = 0; i < campoMonstruos.length; i++) {
+        if (campoMonstruos[i] == null) {
+            Mounstro m = (Mounstro) mano[indice];
+            m.setPosicion(posicion);
+            campoMonstruos[i] = mano[indice];
+            mano[indice] = null;
+            yaInvoco = true;
+            System.out.println("Invocaste: " + campoMonstruos[i].getNombre() + " en posición " + posicion);
+            return;
+        }
+    }
+
+    System.out.println("Campo lleno");
+}
+
+  public int contarMonstruos() {
+    int count = 0;
+
+    for (int i = 0; i < campoMonstruos.length; i++) {
+      if (campoMonstruos[i] != null) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  public int obtenerNumeroEstrellas(Mounstro.Estrellas estrellas) {
+    switch (estrellas) {
+      case Una:
+        return 1;
+
+      case Dos:
+        return 2;
+
+      case Tres:
+        return 3;
+
+      case Cuatro:
+        return 4;
+
+      case Cinco:
+        return 5;
+
+      case Seis:
+        return 6;
+
+      case Siete:
+        return 7;
+
+      case Ocho:
+        return 8;
+
+      case Nueve:
+        return 9;
+
+      case Diez:
+        return 10;
+
+      default:
+        return 0;
+    }
+  }
 
  public void mostrarCampo() {
     System.out.println("=== MONSTRUOS ===");
