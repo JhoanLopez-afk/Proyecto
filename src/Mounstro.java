@@ -1,9 +1,11 @@
 public class Mounstro  extends Carta {
-   private short ataque;
-   private short defensa;
-   private Estrellas estrellas;
+    private short ataque;
+    private short defensa;
+    private Estrellas estrellas;
     private Posicion posicion;
     private boolean paralizado = false;
+    private boolean yaAtaco = false;
+
     public Mounstro(String nombre, short ataque, short defensa, TipoCarta tipo, Estrellas estrellas, boolean visible, String efecto, Estado estado) {
         super(nombre, tipo, visible, efecto, estado);
         this.ataque = ataque;
@@ -51,4 +53,8 @@ public void setParalizado(boolean p) {
 public void usar(Jugador jugador, Jugador oponente) {
     System.out.println("Se invoca " + getNombre());
 }
+public boolean isYaAtaco() {
+     return yaAtaco; }
+public void setYaAtaco(boolean yaAtaco) { 
+    this.yaAtaco = yaAtaco; }
 }

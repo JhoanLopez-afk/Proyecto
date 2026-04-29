@@ -123,6 +123,11 @@ public void setIndiceTrampaLlamada(int indice) {
         cambioPosicion = false;
         trampasBloqueadas = false;
         magiaBloqueada = false;
+        for (int i = 0; i < campoMonstruos.length; i++) {
+        if (campoMonstruos[i] instanceof Mounstro) {
+            ((Mounstro) campoMonstruos[i]).setYaAtaco(false);
+        }
+    }
     }
 
     public boolean tieneMonstruos() {
