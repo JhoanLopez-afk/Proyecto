@@ -635,15 +635,15 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         java.util.ArrayList<String> opsAtac = new java.util.ArrayList<>();
         java.util.ArrayList<Byte>   idxAtac = new java.util.ArrayList<>();
 
-        for (int i = 0; i < activo.getCampo().length; i++) {
-            if (activo.getCampo()[i] instanceof Mounstro) {
-                Mounstro m = (Mounstro) activo.getCampo()[i];
-                if (m.getPosicion() == Posicion.ATAQUE && !m.isParalizado()) {
-                    opsAtac.add(m.getNombre() + "  ATK:" + m.getAtaque());
-                    idxAtac.add((byte) i);
-                }
+       for (int i = 0; i < activo.getCampo().length; i++) {
+        if (activo.getCampo()[i] instanceof Mounstro) {
+            Mounstro m = (Mounstro) activo.getCampo()[i];
+            if (m.getPosicion() == Posicion.ATAQUE && !m.isParalizado() && !m.isYaAtaco()) {
+                opsAtac.add(m.getNombre() + "  ATK:" + m.getAtaque());
+                idxAtac.add((byte) i);
             }
-        }
+    }
+}
 
         if (opsAtac.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -705,7 +705,7 @@ private void manejarTifon(Jugador activo, Jugador rival) {
                 activo.setAtaqueNegado(false);
             }
         }
-
+        mAtac.setYaAtaco(true);
         actualizarUI();
         revisarFinJuego();
     }
@@ -755,12 +755,12 @@ private void manejarTifon(Jugador activo, Jugador rival) {
         jugadorActivo().resetTurno();
 
         turnoDe = (turnoDe == 1) ? (byte) 2 : (byte) 1;
+        btnAtacar.setEnabled(!primerTurno);
         primerTurno = false;
         cartaSeleccionadaEnMano = -1;
 
         jugadorActivo().robarCarta();
         agregarLog("Turno de " + nombreActivo());
-        btnAtacar.setEnabled(true);
         actualizarUI();
     }
 
