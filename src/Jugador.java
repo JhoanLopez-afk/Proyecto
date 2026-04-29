@@ -466,4 +466,25 @@ public void atacar(byte indiceMiMounstro, Jugador oponente, byte indiceObjetivo)
         }
     }
 }
+    public boolean colocarEnCampoMagiaTrampa(int indiceMano) {
+         if (indiceMano < 0 || indiceMano >= mano.length || mano[indiceMano] == null) {
+            System.out.println("Posición inválida");
+            return false;
+            }
+        if (!(mano[indiceMano] instanceof Magia) && !(mano[indiceMano] instanceof Trampa)) {
+            System.out.println("No es mágica ni trampa");
+            return false;
+        }
+        for (int i = 0; i < campoMagias.length; i++) {
+            if (campoMagias[i] == null) {
+                campoMagias[i] = mano[indiceMano];
+                mano[indiceMano] = null;
+                campoMagias[i].setEstado(Estado.CAMPO);
+                System.out.println("Colocaste " + campoMagias[i].getNombre() + " en el campo de mágicas/trampas.");
+                return true;
+            }
+        }
+    System.out.println("Campo de mágicas/trampas lleno");
+    return false;
+    }
 }
