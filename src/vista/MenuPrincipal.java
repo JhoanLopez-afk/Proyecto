@@ -60,10 +60,10 @@ public class MenuPrincipal extends JFrame {
         panelBotones.setBackground(new Color(15, 30, 70));
         panelBotones.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        btnNuevoDuelo    = crearBoton("⚔  Nuevo Duelo",        new Color(0, 120, 60));
-        btnCargarPartida = crearBoton("📂  Cargar Partida",     new Color(0, 80, 160));
-        btnEstadisticas  = crearBoton("📊  Estadísticas",       new Color(100, 50, 150));
-        btnSalir         = crearBoton("🚪  Salir",              new Color(100, 30, 30));
+        btnNuevoDuelo    = crearBoton("  Nuevo Duelo",        new Color(0, 120, 60));
+        btnCargarPartida = crearBoton("  Cargar Partida",     new Color(0, 80, 160));
+        btnEstadisticas  = crearBoton("  Estadísticas",       new Color(100, 50, 150));
+        btnSalir         = crearBoton("  Salir",              new Color(100, 30, 30));
 
         btnNuevoDuelo.addActionListener(e    -> accionNuevoDuelo());
         btnCargarPartida.addActionListener(e -> accionCargarPartida());
