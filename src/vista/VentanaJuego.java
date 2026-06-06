@@ -27,6 +27,7 @@ public class VentanaJuego extends JFrame implements IVistaJuego {
     private JButton btnInvocar, btnMagia, btnActivarMagia;
     private JButton btnAtacar, btnCambiarPos, btnFinTurno;
     private JButton btnCementerioJ1, btnCementerioJ2;
+    private JButton btnGuardar;
 
     private JLabel      lblLPJ1, lblLPJ2;
     private JProgressBar barraVidaJ1, barraVidaJ2;
@@ -291,7 +292,7 @@ public class VentanaJuego extends JFrame implements IVistaJuego {
         panel.setBackground(new Color(10, 20, 50));
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        JPanel panelAcciones = new JPanel(new GridLayout(6, 1, 0, 5));
+        JPanel panelAcciones = new JPanel(new GridLayout(7, 1, 0, 5));
         panelAcciones.setBackground(new Color(10, 30, 15));
 
         btnInvocar      = crearBoton("Invocar monstruo",         new Color(0, 110, 50));
@@ -315,6 +316,9 @@ public class VentanaJuego extends JFrame implements IVistaJuego {
         panelAcciones.add(btnAtacar);
         panelAcciones.add(btnCambiarPos);
         panelAcciones.add(btnFinTurno);
+        btnGuardar = crearBoton("  Guardar partida", new Color(0, 100, 80));
+        btnGuardar.addActionListener(e -> controlador.onGuardarPartida());
+        panelAcciones.add(btnGuardar);
 
         JPanel panelCem = new JPanel(new GridLayout(2, 1, 0, 4));
         panelCem.setBackground(new Color(10, 30, 15));
@@ -456,5 +460,9 @@ public class VentanaJuego extends JFrame implements IVistaJuego {
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
         return btn;
+    }
+    @Override
+    public void mostrarBotonGuardar() {
+    
     }
 }

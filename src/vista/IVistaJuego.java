@@ -25,4 +25,6 @@ public interface IVistaJuego {
     boolean pedirConfirmacion(String titulo, String mensaje);
 
     void mostrarFinJuego(String ganador, String perdedor);
+
+    void mostrarBotonGuardar();
 }

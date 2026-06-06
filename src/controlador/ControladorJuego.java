@@ -11,6 +11,7 @@ public class ControladorJuego {
     private final IVistaJuego vista;
     private Jugador jugador1;
     private Jugador jugador2;
+    private int turnosJugados = 0;
 
     private byte    turnoDe            = 1;
     private boolean primerTurno        = true;
@@ -21,18 +22,29 @@ public class ControladorJuego {
         vista.setControlador(this);
     }
 
-    public void iniciar() {
-        String[] nombres = vista.pedirNombresJugadores();
-
-        Jugador[] combatientes = Juego.iniciarJuego(nombres[0], nombres[1]);
-        jugador1 = combatientes[0];
-        jugador2 = combatientes[1];
-
-        vista.mostrar();
-        vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
-        vista.agregarLog("¡El duelo ha comenzado!");
-        vista.agregarLog("Turno de " + nombreActivo());
+    public void iniciarNuevo(String nombre1, String nombre2) {
+    Jugador[] combatientes = Juego.iniciarJuego(nombre1, nombre2);
+    jugador1 = combatientes[0];
+    jugador2 = combatientes[1];
+ 
+    vista.mostrar();
+    vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
+    vista.agregarLog("¡El duelo ha comenzado!");
+    vista.agregarLog("Turno de " + nombreActivo());
     }
+ 
+    public void iniciarDesdeGuardado(GestorArchivos.EstadoPartida estado) {
+    jugador1      = estado.jugador1;
+    jugador2      = estado.jugador2;
+    turnoDe       = estado.turnoDe;
+    primerTurno   = estado.primerTurno;
+    turnosJugados = estado.turnosJugados;
+ 
+    vista.mostrar();
+    vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
+    vista.agregarLog("Partida cargada. Turno de " + nombreActivo());
+    }
+ 
 
     public void onSeleccionarCartaMano(int indice) {
         cartaSeleccionadaEnMano = indice;
@@ -269,20 +281,23 @@ public class ControladorJuego {
     }
 
     public void onFinTurno() {
-        vista.agregarLog("--- Fin del turno de " + nombreActivo() + " ---");
-        jugadorActivo().resetTurno();
-
-        turnoDe = (turnoDe == 1) ? (byte) 2 : (byte) 1;
-        primerTurno = false;
-        cartaSeleccionadaEnMano = -1;
-
-        String cartaRobada = jugadorActivo().robarCarta();
-        if (cartaRobada != null) vista.agregarLog(nombreActivo() + " robó: " + cartaRobada);
-        else                     vista.agregarLog(nombreActivo() + " no pudo robar (baraja vacía o mano llena).");
-
-        vista.agregarLog("Turno de " + nombreActivo());
-        refrescarVista();
-        verificarFinJuego();
+    vista.agregarLog("--- Fin del turno de " + nombreActivo() + " ---");
+    jugadorActivo().resetTurno();
+ 
+    turnoDe = (turnoDe == 1) ? (byte) 2 : (byte) 1;
+    primerTurno = false;
+    cartaSeleccionadaEnMano = -1;
+    turnosJugados++;   // <-- contar turno
+ 
+    String cartaRobada = jugadorActivo().robarCarta();
+    if (cartaRobada != null)
+        vista.agregarLog(nombreActivo() + " robó: " + cartaRobada);
+    else
+        vista.agregarLog(nombreActivo() + " no pudo robar (baraja vacía o mano llena).");
+ 
+    vista.agregarLog("Turno de " + nombreActivo());
+    refrescarVista();
+    verificarFinJuego();
     }
 
     public void onVerCementerio(int jugador) {
@@ -646,18 +661,50 @@ public class ControladorJuego {
     }
 
     private void verificarFinJuego() {
-        if (jugador1.getVida() <= 0 || jugador2.getVida() <= 0) {
-            String ganador  = jugador1.getVida() > 0
-                ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
-            String perdedor = jugador1.getVida() <= 0
-                ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
-            jugador1.setGanador(jugador1.getVida() > 0);
-            jugador2.setGanador(jugador2.getVida() > 0);
-            vista.mostrarFinJuego(ganador, perdedor);
+    if (jugador1.getVida() <= 0 || jugador2.getVida() <= 0) {
+        String ganador  = jugador1.getVida() > 0
+            ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
+        String perdedor = jugador1.getVida() <= 0
+            ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
+ 
+        jugador1.setGanador(jugador1.getVida() > 0);
+        jugador2.setGanador(jugador2.getVida() > 0);
+ 
+        // Registrar resultado en historial
+        try {
+            controlador.GestorArchivos.registrarResultado(
+                jugador1.getNombreJugador(),
+                jugador2.getNombreJugador(),
+                ganador,
+                turnosJugados,
+                jugador1.getVida(),
+                jugador2.getVida());
+            // Borrar partida guardada porque el duelo terminó
+            controlador.GestorArchivos.eliminarPartidaGuardada();
+        } catch (Exception ex) {
+            vista.agregarLog("Advertencia: no se pudo registrar el resultado.");
         }
+ 
+        vista.mostrarFinJuego(ganador, perdedor);
     }
+    }
+
+    //Metodo para guardar partida:
+    public void onGuardarPartida() {
+    try {
+        controlador.GestorArchivos.guardarPartida(
+            jugador1, jugador2, turnoDe, primerTurno, turnosJugados);
+        vista.mostrarMensaje("Partida guardada",
+            "La partida se guardó correctamente en partida_guardada.txt");
+    } catch (Exception ex) {
+        vista.mostrarError("Error al guardar",
+            "No se pudo guardar la partida:\n" + ex.getMessage());
+    }
+}
 
     private Jugador jugadorActivo() { return turnoDe == 1 ? jugador1 : jugador2; }
     private Jugador jugadorRival()  { return turnoDe == 1 ? jugador2 : jugador1; }
     private String  nombreActivo()  { return jugadorActivo().getNombreJugador(); }
+
 }
+ 
