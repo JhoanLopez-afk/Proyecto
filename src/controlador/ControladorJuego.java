@@ -2,6 +2,7 @@ package controlador;
 
 import modelo.*;
 import modelo.enums.Posicion;
+import modelo.estructuras.LogEventosTurno;
 import vista.IVistaJuego;
 
 import java.util.ArrayList;
@@ -13,9 +14,12 @@ public class ControladorJuego {
     private Jugador jugador2;
     private int turnosJugados = 0;
 
-    private byte    turnoDe            = 1;
-    private boolean primerTurno        = true;
+    private byte    turnoDe                = 1;
+    private boolean primerTurno            = true;
     private int     cartaSeleccionadaEnMano = -1;
+
+  
+    private final LogEventosTurno logTurno = new LogEventosTurno();
 
     public ControladorJuego(IVistaJuego vista) {
         this.vista = vista;
@@ -23,28 +27,32 @@ public class ControladorJuego {
     }
 
     public void iniciarNuevo(String nombre1, String nombre2) {
-    Jugador[] combatientes = Juego.iniciarJuego(nombre1, nombre2);
-    jugador1 = combatientes[0];
-    jugador2 = combatientes[1];
- 
-    vista.mostrar();
-    vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
-    vista.agregarLog("¡El duelo ha comenzado!");
-    vista.agregarLog("Turno de " + nombreActivo());
+        Jugador[] combatientes = Juego.iniciarJuego(nombre1, nombre2);
+        jugador1 = combatientes[0];
+        jugador2 = combatientes[1];
+
+        vista.mostrar();
+        vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
+        registrarEvento("¡El duelo ha comenzado!");
+        registrarEvento("Turno de " + nombreActivo());
     }
- 
+
     public void iniciarDesdeGuardado(GestorArchivos.EstadoPartida estado) {
-    jugador1      = estado.jugador1;
-    jugador2      = estado.jugador2;
-    turnoDe       = estado.turnoDe;
-    primerTurno   = estado.primerTurno;
-    turnosJugados = estado.turnosJugados;
- 
-    vista.mostrar();
-    vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
-    vista.agregarLog("Partida cargada. Turno de " + nombreActivo());
+        jugador1      = estado.jugador1;
+        jugador2      = estado.jugador2;
+        turnoDe       = estado.turnoDe;
+        primerTurno   = estado.primerTurno;
+        turnosJugados = estado.turnosJugados;
+
+        vista.mostrar();
+        vista.actualizarUI(jugador1, jugador2, nombreActivo(), primerTurno);
+        registrarEvento("Partida cargada. Turno de " + nombreActivo());
     }
- 
+
+    private void registrarEvento(String mensaje) {
+        logTurno.registrarEvento(mensaje);  
+        vista.agregarLog(mensaje);
+    }
 
     public void onSeleccionarCartaMano(int indice) {
         cartaSeleccionadaEnMano = indice;
@@ -52,11 +60,9 @@ public class ControladorJuego {
             ((vista.VentanaJuego) vista).resaltarSlotMano(indice);
     }
 
-    public void onSlotCampoPropio(int indice) {
-    }
+    public void onSlotCampoPropio(int indice) { }
 
-    public void onSlotCampoRival(int indice) {
-    }
+    public void onSlotCampoRival(int indice) { }
 
     public void onInvocar() {
         if (cartaSeleccionadaEnMano == -1) {
@@ -75,7 +81,7 @@ public class ControladorJuego {
             return;
         }
 
-        Mounstro m       = (Mounstro) carta;
+        Mounstro m         = (Mounstro) carta;
         int      estrellas = activo.obtenerNumeroEstrellas(m.getEstrellas());
 
         if (estrellas >= 5 && estrellas <= 6) {
@@ -107,7 +113,7 @@ public class ControladorJuego {
         else                 ok = activo.invocarMonstruo(cartaSeleccionadaEnMano, pos);
 
         if (ok) {
-            vista.agregarLog(nombreActivo() + " invocó: " + carta.getNombre() + " en " + pos);
+            registrarEvento(nombreActivo() + " invocó: " + carta.getNombre() + " en " + pos);
         } else {
             vista.mostrarError("Campo lleno", "No hay espacio en el campo de monstruos.");
         }
@@ -131,7 +137,7 @@ public class ControladorJuego {
         }
 
         boolean ok = activo.colocarEnCampoMagiaTrampa(cartaSeleccionadaEnMano);
-        if (ok) vista.agregarLog(nombreActivo() + " colocó una carta boca abajo.");
+        if (ok) registrarEvento(nombreActivo() + " colocó una carta boca abajo.");
         else    vista.mostrarError("Campo lleno", "No hay espacio en el campo de mágicas/trampas.");
 
         cartaSeleccionadaEnMano = -1;
@@ -158,14 +164,14 @@ public class ControladorJuego {
             "Selecciona la mágica a activar:", ops.toArray(new String[0]));
         if (resp == -1) return;
 
-        int    indiceCampo = idx.get(resp);
-        Magia  magia       = (Magia) activo.getCampoMagias()[indiceCampo];
+        int   indiceCampo = idx.get(resp);
+        Magia magia       = (Magia) activo.getCampoMagias()[indiceCampo];
 
         if (verificarYAplicarDisruptorMagico(rival, activo, magia, indiceCampo)) return;
 
         activo.getCampoMagias()[indiceCampo] = null;
         magia.setVisible(true);
-        vista.agregarLog(nombreActivo() + " activó: " + magia.getNombre());
+        registrarEvento(nombreActivo() + " activó: " + magia.getNombre());
 
         despacharEfectoMagia(activo, rival, magia);
 
@@ -198,15 +204,15 @@ public class ControladorJuego {
             "¿Con cuál monstruo atacas?", opsAtac.toArray(new String[0]));
         if (rAtac == -1) return;
 
-        byte   indAtac = idxAtac.get(rAtac);
-        Mounstro mAtac = (Mounstro) activo.getCampo()[indAtac];
+        byte     indAtac = idxAtac.get(rAtac);
+        Mounstro mAtac   = (Mounstro) activo.getCampo()[indAtac];
 
-        vista.agregarLog(nombreActivo() + " ataca con " + mAtac.getNombre());
+        registrarEvento(nombreActivo() + " ataca con " + mAtac.getNombre());
 
         rival.setIndiceAtacanteRival(indAtac);
         if (activarTrampaRival(rival, activo, indAtac)) {
             if (activo.isAtaqueNegado()) {
-                vista.agregarLog("¡El ataque fue negado!");
+                registrarEvento("¡El ataque fue negado!");
                 activo.setAtaqueNegado(false);
                 mAtac.setYaAtaco(true);
                 refrescarVista();
@@ -235,11 +241,11 @@ public class ControladorJuego {
             byte indObj = idxObj.get(rObj);
             activo.atacar(indAtac, rival, indObj);
         } else {
-            vista.agregarLog(nombreActivo() + " hace ataque directo.");
+            registrarEvento(nombreActivo() + " hace ataque directo.");
             activo.atacar(indAtac, rival, (byte) -1);
         }
 
-        vista.agregarLog("LP " + rival.getNombreJugador() + ": " + rival.getVida());
+        registrarEvento("LP " + rival.getNombreJugador() + ": " + rival.getVida());
         mAtac.setYaAtaco(true);
         refrescarVista();
         verificarFinJuego();
@@ -273,7 +279,7 @@ public class ControladorJuego {
         Posicion nuevaPos = (rPos == 1) ? Posicion.DEFENSA : Posicion.ATAQUE;
         boolean ok = activo.cambiarPosicionMonstruo(idx.get(rSel), nuevaPos);
 
-        if (ok) vista.agregarLog(nombreActivo() + " cambió posición a " + nuevaPos);
+        if (ok) registrarEvento(nombreActivo() + " cambió posición a " + nuevaPos);
         else    vista.mostrarError("No permitido",
             "No puedes cambiar la posición (ya cambiaste este turno o el monstruo está paralizado).");
 
@@ -281,23 +287,26 @@ public class ControladorJuego {
     }
 
     public void onFinTurno() {
-    vista.agregarLog("--- Fin del turno de " + nombreActivo() + " ---");
-    jugadorActivo().resetTurno();
- 
-    turnoDe = (turnoDe == 1) ? (byte) 2 : (byte) 1;
-    primerTurno = false;
-    cartaSeleccionadaEnMano = -1;
-    turnosJugados++;   // <-- contar turno
- 
-    String cartaRobada = jugadorActivo().robarCarta();
-    if (cartaRobada != null)
-        vista.agregarLog(nombreActivo() + " robó: " + cartaRobada);
-    else
-        vista.agregarLog(nombreActivo() + " no pudo robar (baraja vacía o mano llena).");
- 
-    vista.agregarLog("Turno de " + nombreActivo());
-    refrescarVista();
-    verificarFinJuego();
+        registrarEvento("--- Fin del turno de " + nombreActivo() + " ---");
+        jugadorActivo().resetTurno();
+
+       
+        logTurno.limpiar();
+
+        turnoDe = (turnoDe == 1) ? (byte) 2 : (byte) 1;
+        primerTurno = false;
+        cartaSeleccionadaEnMano = -1;
+        turnosJugados++;
+
+        String cartaRobada = jugadorActivo().robarCarta();
+        if (cartaRobada != null)
+            registrarEvento(nombreActivo() + " robó: " + cartaRobada);
+        else
+            registrarEvento(nombreActivo() + " no pudo robar (baraja vacía o mano llena).");
+
+        registrarEvento("Turno de " + nombreActivo());
+        refrescarVista();
+        verificarFinJuego();
     }
 
     public void onVerCementerio(int jugador) {
@@ -316,6 +325,20 @@ public class ControladorJuego {
         if (vacio) sb.append("(vacío)");
         vista.mostrarMensaje("Cementerio de " + j.getNombreJugador(), sb.toString());
     }
+
+    public void onGuardarPartida() {
+        try {
+            GestorArchivos.guardarPartida(
+                jugador1, jugador2, turnoDe, primerTurno, turnosJugados);
+            vista.mostrarMensaje("Partida guardada",
+                "La partida se guardó correctamente en partida_guardada.txt");
+        } catch (Exception ex) {
+            vista.mostrarError("Error al guardar",
+                "No se pudo guardar la partida:\n" + ex.getMessage());
+        }
+    }
+
+    
 
     private boolean realizarSacrificios(Jugador activo, int cantidad, String nombreMonstruo) {
         for (int s = 0; s < cantidad; s++) {
@@ -339,7 +362,7 @@ public class ControladorJuego {
             if (r == -1) return false;
 
             int indiceSacrificio = idx.get(r);
-            vista.agregarLog(nombreActivo() + " sacrificó: "
+            registrarEvento(nombreActivo() + " sacrificó: "
                 + activo.getCampo()[indiceSacrificio].getNombre());
             activo.muereMounstro(indiceSacrificio);
         }
@@ -348,7 +371,7 @@ public class ControladorJuego {
 
     private boolean activarTrampaRival(Jugador defensor, Jugador atacante, int indiceAtacante) {
         if (defensor.isTrampasBloqueadas()) {
-            vista.agregarLog("Las trampas de " + defensor.getNombreJugador() + " están bloqueadas.");
+            registrarEvento("Las trampas de " + defensor.getNombreJugador() + " están bloqueadas.");
             defensor.setTrampasBloqueadas(false);
             return false;
         }
@@ -379,7 +402,7 @@ public class ControladorJuego {
 
         defensor.getCampoMagias()[indiceCampo] = null;
         t.setVisible(true);
-        vista.agregarLog(defensor.getNombreJugador() + " activó trampa: " + t.getNombre());
+        registrarEvento(defensor.getNombreJugador() + " activó trampa: " + t.getNombre());
 
         despacharEfectoTrampa(t, defensor, atacante, indiceAtacante);
 
@@ -414,7 +437,7 @@ public class ControladorJuego {
             }
         }
         if (opsDes.isEmpty()) {
-            vista.agregarLog(rival.getNombreJugador() + " no tiene cartas. Disruptor sin efecto.");
+            registrarEvento(rival.getNombreJugador() + " no tiene cartas. Disruptor sin efecto.");
             return false;
         }
         int rDes = vista.pedirOpcion("Disruptor Mágico",
@@ -422,11 +445,11 @@ public class ControladorJuego {
             opsDes.toArray(new String[0]));
         if (rDes == -1) return false;
 
-        int   iDes    = idxDes.get(rDes);
+        int   iDes       = idxDes.get(rDes);
         Carta descartada = rival.getMano()[iDes];
-        rival.getMano()[iDes] = null;
+        rival.getManoLinkedList().vaciarPosicion(iDes);
         rival.enviarAlCementerio(descartada);
-        vista.agregarLog(rival.getNombreJugador() + " descartó " + descartada.getNombre());
+        registrarEvento(rival.getNombreJugador() + " descartó " + descartada.getNombre());
 
         activo.getCampoMagias()[indiceCampo] = null;
         activo.enviarAlCementerio(magia);
@@ -434,7 +457,7 @@ public class ControladorJuego {
         rival.getCampoMagias()[indDisruptor] = null;
         rival.enviarAlCementerio(disruptor);
 
-        vista.agregarLog("¡" + magia.getNombre() + " fue negada por Disruptor Mágico!");
+        registrarEvento("¡" + magia.getNombre() + " fue negada por Disruptor Mágico!");
         refrescarVista();
         return true;
     }
@@ -460,7 +483,7 @@ public class ControladorJuego {
         atacante.enviarAlCementerio(disruptor);
         defensor.enviarAlCementerio(trampa);
 
-        vista.agregarLog(atacante.getNombreJugador() + " negó "
+        registrarEvento(atacante.getNombreJugador() + " negó "
             + trampa.getNombre() + " con Disruptor de Trampa.");
         refrescarVista();
         return true;
@@ -474,9 +497,7 @@ public class ControladorJuego {
                 "Selecciona el monstruo a revivir:");
             if (indice != -1) {
                 magia.ejecutarMonstruoRenacido(activo, indice);
-                vista.agregarLog(nombreActivo() + " revivió: "
-                    + activo.getCampo()[encontrarUltimoOcupadoCampo(activo)] != null
-                    ? "" : "");
+                registrarEvento(nombreActivo() + " revivió un monstruo.");
             }
 
         } else if (nombre.equals("Tifon del espacio Mistico")) {
@@ -492,19 +513,17 @@ public class ControladorJuego {
                 "Elige la carta a destruir:", ops.toArray(new String[0]));
             if (r == -1) return;
             magia.ejecutarTifon(rival, idx.get(r));
-            vista.agregarLog("Tifón destruyó una carta del campo rival.");
+            registrarEvento("Tifón destruyó una carta del campo rival.");
 
         } else if (nombre.equals("Caridad elegante") || nombre.equals("Fuerza de Resabastecimiento")) {
-            int[] descartes = elegirDescartes(activo, 2, false,
-                "Selecciona cartas a descartar (2)");
+            int[] descartes = elegirDescartes(activo, 2, false, "Selecciona cartas a descartar (2)");
             if (descartes != null) magia.ejecutarRobarDescartar(activo, descartes);
-            vista.agregarLog(nombreActivo() + " robó 3 y descartó 2.");
+            registrarEvento(nombreActivo() + " robó 3 y descartó 2.");
 
         } else if (nombre.equals("Reproduccion de hechizo")) {
-            int[] descartes = elegirDescartes(activo, 2, true,
-                "Selecciona 2 mágicas a descartar");
+            int[] descartes = elegirDescartes(activo, 2, true, "Selecciona 2 mágicas a descartar");
             if (descartes != null) magia.ejecutarReproduccionHechizo(activo, descartes);
-            vista.agregarLog(nombreActivo() + " descartó 2 mágicas.");
+            registrarEvento(nombreActivo() + " descartó 2 mágicas.");
 
         } else if (nombre.equals("Intercambio")) {
             int iP = elegirDeMano(activo, "Intercambio", "Elige tu carta a entregar:", false);
@@ -512,11 +531,11 @@ public class ControladorJuego {
             int iR = elegirDeMano(rival, "Intercambio", "Elige la carta del rival:", false);
             if (iR == -1) return;
             magia.ejecutarIntercambio(activo, iP, rival, iR);
-            vista.agregarLog(nombreActivo() + " intercambió cartas.");
+            registrarEvento(nombreActivo() + " intercambió cartas.");
 
         } else {
             magia.ejecutarEfecto(activo, rival);
-            vista.agregarLog("Efecto de " + nombre + " aplicado.");
+            registrarEvento("Efecto de " + nombre + " aplicado.");
         }
     }
 
@@ -538,15 +557,14 @@ public class ControladorJuego {
                 "Selecciona el monstruo a paralizar:", ops.toArray(new String[0]));
             if (r == -1) return;
             t.ejecutarCirculoAtahechizos(atacante, idx.get(r));
-            vista.agregarLog(((Mounstro) atacante.getCampo()[idx.get(r)]).getNombre() + " fue paralizado.");
+            registrarEvento(((Mounstro) atacante.getCampo()[idx.get(r)]).getNombre() + " fue paralizado.");
 
         } else if (nombre.equals("Artilugio de Evacuación Compulsiva")) {
             String[] campos = {
                 "Mi campo (" + defensor.getNombreJugador() + ")",
                 "Campo del oponente (" + atacante.getNombreJugador() + ")"
             };
-            int rCampo = vista.pedirOpcion("Artilugio",
-                "¿De qué campo devolver un monstruo?", campos);
+            int rCampo = vista.pedirOpcion("Artilugio", "¿De qué campo devolver un monstruo?", campos);
             if (rCampo == -1) return;
             Jugador objetivo = (rCampo == 0) ? defensor : atacante;
 
@@ -559,11 +577,10 @@ public class ControladorJuego {
                 }
             }
             if (ops.isEmpty()) { vista.mostrarMensaje("Artilugio", "No hay monstruos."); return; }
-            int r = vista.pedirOpcion("Artilugio",
-                "Selecciona el monstruo a devolver:", ops.toArray(new String[0]));
+            int r = vista.pedirOpcion("Artilugio", "Selecciona el monstruo a devolver:", ops.toArray(new String[0]));
             if (r == -1) return;
             t.ejecutarArtilugio(objetivo, idx.get(r));
-            vista.agregarLog("Un monstruo fue devuelto a la mano.");
+            registrarEvento("Un monstruo fue devuelto a la mano.");
 
         } else if (nombre.equals("Disruptor Mágico")) {
             ArrayList<String>  opsDes = new ArrayList<>();
@@ -573,13 +590,13 @@ public class ControladorJuego {
                     opsDes.add(defensor.getMano()[i].getNombre()); idxDes.add(i);
                 }
             }
-            if (opsDes.isEmpty()) { vista.agregarLog("Sin cartas para descartar. Sin efecto."); return; }
+            if (opsDes.isEmpty()) { registrarEvento("Sin cartas para descartar. Sin efecto."); return; }
             int rDes = vista.pedirOpcion("Disruptor Mágico",
                 defensor.getNombreJugador() + ", descarta una carta:",
                 opsDes.toArray(new String[0]));
             if (rDes == -1) return;
             t.ejecutarDisruptorMagico(defensor, idxDes.get(rDes), atacante);
-            vista.agregarLog("Disruptor Mágico: mágicas del rival bloqueadas.");
+            registrarEvento("Disruptor Mágico: mágicas del rival bloqueadas.");
 
         } else if (nombre.equals("llamada de los condenados")) {
             int indiceCem = elegirDelCementerio(defensor, "Llamada de los Condenados",
@@ -597,11 +614,11 @@ public class ControladorJuego {
                 return;
             }
             t.ejecutarLlamadaCondenados(defensor, indiceCem, emMonstruo, emMagia);
-            vista.agregarLog("Monstruo revivido por Llamada de los Condenados.");
+            registrarEvento("Monstruo revivido por Llamada de los Condenados.");
 
         } else {
             t.ejecutarEfecto(defensor, atacante);
-            vista.agregarLog("Trampa " + nombre + " activada.");
+            registrarEvento("Trampa " + nombre + " activada.");
         }
     }
 
@@ -661,50 +678,33 @@ public class ControladorJuego {
     }
 
     private void verificarFinJuego() {
-    if (jugador1.getVida() <= 0 || jugador2.getVida() <= 0) {
-        String ganador  = jugador1.getVida() > 0
-            ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
-        String perdedor = jugador1.getVida() <= 0
-            ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
- 
-        jugador1.setGanador(jugador1.getVida() > 0);
-        jugador2.setGanador(jugador2.getVida() > 0);
- 
-        // Registrar resultado en historial
-        try {
-            controlador.GestorArchivos.registrarResultado(
-                jugador1.getNombreJugador(),
-                jugador2.getNombreJugador(),
-                ganador,
-                turnosJugados,
-                jugador1.getVida(),
-                jugador2.getVida());
-            // Borrar partida guardada porque el duelo terminó
-            controlador.GestorArchivos.eliminarPartidaGuardada();
-        } catch (Exception ex) {
-            vista.agregarLog("Advertencia: no se pudo registrar el resultado.");
-        }
- 
-        vista.mostrarFinJuego(ganador, perdedor);
-    }
-    }
+        if (jugador1.getVida() <= 0 || jugador2.getVida() <= 0) {
+            String ganador  = jugador1.getVida() > 0
+                ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
+            String perdedor = jugador1.getVida() <= 0
+                ? jugador1.getNombreJugador() : jugador2.getNombreJugador();
 
-    //Metodo para guardar partida:
-    public void onGuardarPartida() {
-    try {
-        controlador.GestorArchivos.guardarPartida(
-            jugador1, jugador2, turnoDe, primerTurno, turnosJugados);
-        vista.mostrarMensaje("Partida guardada",
-            "La partida se guardó correctamente en partida_guardada.txt");
-    } catch (Exception ex) {
-        vista.mostrarError("Error al guardar",
-            "No se pudo guardar la partida:\n" + ex.getMessage());
+            jugador1.setGanador(jugador1.getVida() > 0);
+            jugador2.setGanador(jugador2.getVida() > 0);
+
+            try {
+                GestorArchivos.registrarResultado(
+                    jugador1.getNombreJugador(),
+                    jugador2.getNombreJugador(),
+                    ganador,
+                    turnosJugados,
+                    jugador1.getVida(),
+                    jugador2.getVida());
+                GestorArchivos.eliminarPartidaGuardada();
+            } catch (Exception ex) {
+                registrarEvento("Advertencia: no se pudo registrar el resultado.");
+            }
+
+            vista.mostrarFinJuego(ganador, perdedor);
+        }
     }
-}
 
     private Jugador jugadorActivo() { return turnoDe == 1 ? jugador1 : jugador2; }
     private Jugador jugadorRival()  { return turnoDe == 1 ? jugador2 : jugador1; }
     private String  nombreActivo()  { return jugadorActivo().getNombreJugador(); }
-
 }
- 
