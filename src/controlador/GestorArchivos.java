@@ -18,7 +18,7 @@ public class GestorArchivos {
 
     private static final String ARCHIVO_PARTIDA    = "partida_guardada.txt";
     private static final String ARCHIVO_RESULTADOS = "resultados.txt";
-    private static final RegistroCartas REGISTRO = new RegistroCartas();
+    private static final RegistroCartas REGISTRO = RegistroCartas.getInstance();
 
     // ─────────────────────────────────────────────────────────────────
     //  GUARDAR PARTIDA
