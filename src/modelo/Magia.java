@@ -11,7 +11,6 @@ public class Magia extends Carta implements Activable {
         super(nombre, tipo, visible, efecto, estado);
     }
 
-
     @Override
     public void ejecutarEfecto(Jugador usuario, Jugador oponente) {
         String nombre = getNombre();
@@ -33,8 +32,6 @@ public class Magia extends Carta implements Activable {
             destruirTodasMagiasTrompas(usuario, oponente);
         }
     }
-
-
 
     /** Monstruo Renacido: revive la carta del cementerio en el índice dado. */
     public void ejecutarMonstruoRenacido(Jugador usuario, int indiceCementerio) {
@@ -60,40 +57,56 @@ public class Magia extends Carta implements Activable {
         }
     }
 
-    /** Caridad Elegante / Fuerza de Resabastecimiento: roba y descarta. */
+    /**
+     * Caridad Elegante / Fuerza de Resabastecimiento: roba 3 y descarta 2.
+     * CORRECCIÓN: obtiene la carta por getMano() (vista), pero la elimina
+     * con getManoLinkedList().vaciarPosicion() (lista real).
+     */
     public void ejecutarRobarDescartar(Jugador usuario, int[] indicesDescartar) {
         usuario.robarCarta();
         usuario.robarCarta();
         usuario.robarCarta();
         for (int idx : indicesDescartar) {
+            // Leer desde la vista (arreglo de copia) para saber qué carta es
             Carta c = usuario.getMano()[idx];
             if (c != null) {
-                usuario.getMano()[idx] = null;
+                // CORRECCIÓN: eliminar de la LinkedList real
+                usuario.getManoLinkedList().vaciarPosicion(idx);
                 usuario.enviarAlCementerio(c);
             }
         }
     }
 
-    /** Reproducción de Hechizo: descarta 2 mágicas de la mano. */
+    /**
+     * Reproducción de Hechizo: descarta 2 mágicas de la mano.
+     * CORRECCIÓN: idem — vaciarPosicion() sobre la LinkedList real.
+     */
     public void ejecutarReproduccionHechizo(Jugador usuario, int[] indicesMagicas) {
         for (int idx : indicesMagicas) {
             Carta c = usuario.getMano()[idx];
             if (c instanceof Magia) {
-                usuario.getMano()[idx] = null;
+                // CORRECCIÓN: eliminar de la LinkedList real
+                usuario.getManoLinkedList().vaciarPosicion(idx);
                 usuario.enviarAlCementerio(c);
             }
         }
     }
 
-    /** Intercambio: intercambia una carta de cada mano. */
+    /**
+     * Intercambio: intercambia una carta de cada mano.
+     * CORRECCIÓN: usa getManoLinkedList().setCarta() para escribir
+     * en la LinkedList real, no en la copia de getMano().
+     */
     public void ejecutarIntercambio(Jugador usuario, int idxUsuario,
                                      Jugador oponente, int idxOponente) {
+        // Leer desde la vista (copia) para saber qué cartas son
         Carta c1 = usuario.getMano()[idxUsuario];
         Carta c2 = oponente.getMano()[idxOponente];
-        usuario.getMano()[idxUsuario]   = c2;
-        oponente.getMano()[idxOponente] = c1;
-    }
 
+        // CORRECCIÓN: escribir en las LinkedLists reales
+        usuario.getManoLinkedList().setCarta(idxUsuario, c2);
+        oponente.getManoLinkedList().setCarta(idxOponente, c1);
+    }
 
     private void destruirTodosLosMonstruos(Jugador usuario, Jugador oponente) {
         for (int i = 0; i < usuario.getCampo().length; i++)
