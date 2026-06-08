@@ -2,6 +2,8 @@ package modelo;
 
 import modelo.enums.Estado;
 import modelo.enums.Posicion;
+import modelo.estructuras.MazoBaraja;
+import modelo.estructuras.ManoJugador;
 
 
 public class Jugador {
@@ -19,21 +21,22 @@ public class Jugador {
     private int     llamadaDeLosCondenados = -1;
     private int     indiceTrampaLlamada  = -1;
 
-    private Carta[] mano;
+    private ManoJugador manoJugador;
+    private MazoBaraja  mazo;
+
     private Carta[] campoMonstruos;
     private Carta[] campoMagias;
     private Carta[] cementerio;
-    private Carta[] baraja;
 
     public enum Fases { ROBO, PRINCIPAL, BATALLA, FINAL }
 
 
 
-    public Jugador(String nombreJugador, Carta[] barajaInicial) {
+    public Jugador(String nombreJugador, MazoBaraja mazo) {
         this.nombreJugador = nombreJugador;
         this.vida          = 8000;
-        this.baraja        = barajaInicial;
-        this.mano          = new Carta[5];
+        this.mazo          = mazo;
+        this.manoJugador   = new ManoJugador();
         this.campoMonstruos= new Carta[5];
         this.campoMagias   = new Carta[5];
         this.cementerio    = new Carta[25];
@@ -65,7 +68,15 @@ public void setGanador(boolean g) {
 }
 
 public Carta[] getMano() {
-    return mano;
+    return manoJugador.toArrayFijo(5);
+}
+
+public ManoJugador getManoLinkedList() {
+    return manoJugador;
+}
+
+public MazoBaraja getMazo() {
+    return mazo;
 }
 
 public Carta[] getCampo() {
@@ -81,7 +92,7 @@ public Carta[] getCementerio() {
 }
 
 public Carta[] getBaraja() {
-    return baraja;
+    return mazo.toArray();
 }
 
 public boolean isAtaqueNegado() {
@@ -158,36 +169,32 @@ public boolean isYaInvoco() {
 
 
     public String robarCarta() {
-        for (int i = 0; i < baraja.length; i++) {
-            if (baraja[i] != null) {
-                for (int j = 0; j < mano.length; j++) {
-                    if (mano[j] == null) {
-                        mano[j] = baraja[i];
-                        baraja[i] = null;
-                        mano[j].setEstado(Estado.MANO);
-                        return mano[j].getNombre();
-                    }
-                }
-                return null; // mano llena
-            }
+        Carta carta = mazo.robar();
+        if (carta == null) {
+            // baraja vacía → pierde
+            this.vida = 0;
+            return null;
         }
-        // baraja vacía → pierde
-        this.vida = 0;
-        return null;
+        if (manoJugador.estaLlena()) {
+            return null; // mano llena
+        }
+        carta.setEstado(Estado.MANO);
+        manoJugador.agregarCarta(carta);
+        return carta.getNombre();
     }
 
     /** Invoca un monstruo de la mano (1-4 estrellas). */
     public boolean invocarMonstruo(int indiceMano, Posicion posicion) {
         if (yaInvoco) return false;
-        if (indiceMano < 0 || indiceMano >= mano.length || mano[indiceMano] == null) return false;
-        if (!(mano[indiceMano] instanceof Mounstro)) return false;
+        Carta carta = manoJugador.getCarta(indiceMano);
+        if (carta == null || !(carta instanceof Mounstro)) return false;
 
         for (int i = 0; i < campoMonstruos.length; i++) {
             if (campoMonstruos[i] == null) {
-                Mounstro m = (Mounstro) mano[indiceMano];
+                Mounstro m = (Mounstro) carta;
                 m.setPosicion(posicion);
-                campoMonstruos[i] = mano[indiceMano];
-                mano[indiceMano]  = null;
+                campoMonstruos[i] = carta;
+                manoJugador.vaciarPosicion(indiceMano);
                 yaInvoco = true;
                 return true;
             }
@@ -197,15 +204,15 @@ public boolean isYaInvoco() {
 
     /** Invoca por sacrificio (5+ estrellas). El Controlador ya sacrificó los monstruos. */
     public boolean invocarMonstruoConSacrificio(int indiceMano, Posicion posicion) {
-        if (indiceMano < 0 || indiceMano >= mano.length || mano[indiceMano] == null) return false;
-        if (!(mano[indiceMano] instanceof Mounstro)) return false;
+        Carta carta = manoJugador.getCarta(indiceMano);
+        if (carta == null || !(carta instanceof Mounstro)) return false;
 
         for (int i = 0; i < campoMonstruos.length; i++) {
             if (campoMonstruos[i] == null) {
-                Mounstro m = (Mounstro) mano[indiceMano];
+                Mounstro m = (Mounstro) carta;
                 m.setPosicion(posicion);
-                campoMonstruos[i] = mano[indiceMano];
-                mano[indiceMano]  = null;
+                campoMonstruos[i] = carta;
+                manoJugador.vaciarPosicion(indiceMano);
                 yaInvoco = true;
                 return true;
             }
@@ -241,13 +248,14 @@ public boolean isYaInvoco() {
 
     /** Coloca una mágica/trampa boca abajo en el campo. */
     public boolean colocarEnCampoMagiaTrampa(int indiceMano) {
-        if (indiceMano < 0 || indiceMano >= mano.length || mano[indiceMano] == null) return false;
-        if (!(mano[indiceMano] instanceof Magia) && !(mano[indiceMano] instanceof Trampa)) return false;
+        Carta carta = manoJugador.getCarta(indiceMano);
+        if (carta == null) return false;
+        if (!(carta instanceof Magia) && !(carta instanceof Trampa)) return false;
 
         for (int i = 0; i < campoMagias.length; i++) {
             if (campoMagias[i] == null) {
-                campoMagias[i] = mano[indiceMano];
-                mano[indiceMano] = null;
+                campoMagias[i] = carta;
+                manoJugador.vaciarPosicion(indiceMano);
                 campoMagias[i].setEstado(Estado.CAMPO);
                 return true;
             }

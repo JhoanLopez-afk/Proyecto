@@ -3,7 +3,9 @@ package controlador;
 import modelo.*;
 import modelo.enums.Estado;
 import modelo.enums.Posicion;
-import modelo.enums.TipoCarta;
+import modelo.estructuras.MazoBaraja;
+import modelo.estructuras.ManoJugador;
+import modelo.estructuras.RegistroCartas;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -16,6 +18,7 @@ public class GestorArchivos {
 
     private static final String ARCHIVO_PARTIDA    = "partida_guardada.txt";
     private static final String ARCHIVO_RESULTADOS = "resultados.txt";
+    private static final RegistroCartas REGISTRO = new RegistroCartas();
 
     // ─────────────────────────────────────────────────────────────────
     //  GUARDAR PARTIDA
@@ -54,7 +57,7 @@ public class GestorArchivos {
         bw.write(prefijo + "_CEMENTERIO=" + serializarArreglo(j.getCementerio())); bw.newLine();
 
         // Baraja
-        bw.write(prefijo + "_BARAJA=" + serializarArreglo(j.getBaraja())); bw.newLine();
+        bw.write(prefijo + "_BARAJA=" + serializarArreglo(j.getMazo().toArray())); bw.newLine();
 
         // Flags especiales
         bw.write(prefijo + "_ATAQUE_NEGADO="          + j.isAtaqueNegado());          bw.newLine();
@@ -78,7 +81,7 @@ public class GestorArchivos {
     }
 
     /** Serializa el campo de monstruos incluyendo posición y estado paralizado:
-     *  nombre:ATAQUE:false|VACIO|nombre:DEFENSA:true */
+     * nombre:ATAQUE:false|VACIO|nombre:DEFENSA:true */
     private static String serializarCampoMonstruos(Carta[] campo) {
         if (campo == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -98,7 +101,7 @@ public class GestorArchivos {
     }
 
     /** Serializa el campo de magias/trampas incluyendo visibilidad:
-     *  nombre:true|VACIO|nombre:false */
+     * nombre:true|VACIO|nombre:false */
     private static String serializarCampoMagias(Carta[] campo) {
         if (campo == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -134,57 +137,48 @@ public class GestorArchivos {
         }
         br.close();
 
-        // Reconstruir el mapa de todas las cartas para buscar por nombre
-        Map<String, Carta> mapaCartas = construirMapaCartas();
-
         byte    turnoDe      = Byte.parseByte(datos.get("TURNO"));
         boolean primerTurno  = Boolean.parseBoolean(datos.get("PRIMER_TURNO"));
         int     turnosJugados= Integer.parseInt(datos.get("TURNOS_JUGADOS"));
 
-        Jugador j1 = reconstruirJugador(datos, "JUGADOR1", mapaCartas);
-        Jugador j2 = reconstruirJugador(datos, "JUGADOR2", mapaCartas);
+        Jugador j1 = reconstruirJugador(datos, "JUGADOR1");
+        Jugador j2 = reconstruirJugador(datos, "JUGADOR2");
 
         return new EstadoPartida(j1, j2, turnoDe, primerTurno, turnosJugados);
     }
 
     private static Jugador reconstruirJugador(Map<String, String> datos,
-                                               String prefijo,
-                                               Map<String, Carta> mapaCartas) {
+                                               String prefijo) {
         String nombre = datos.get(prefijo + "_NOMBRE");
         short  vida   = Short.parseShort(datos.get(prefijo + "_VIDA"));
 
-        // Reconstruir baraja primero para crear el Jugador
-        Carta[] baraja = reconstruirArreglo(
-            datos.get(prefijo + "_BARAJA"), 25, mapaCartas, false, false);
+        Carta[] barajaArr = reconstruirArreglo(datos.get(prefijo + "_BARAJA"), 25);
+        MazoBaraja mazo   = MazoBaraja.desdeArray(barajaArr);
 
-        Jugador j = new Jugador(nombre, baraja);
+        Jugador j = new Jugador(nombre, mazo);
         j.setVida(vida);
 
-        // Reconstruir mano
-        Carta[] mano = reconstruirArreglo(
-            datos.get(prefijo + "_MANO"), 5, mapaCartas, false, false);
-        for (int i = 0; i < mano.length; i++) {
-            j.getMano()[i] = mano[i];
-            if (mano[i] != null) mano[i].setEstado(Estado.MANO);
+        Carta[] manoArr = reconstruirArreglo(datos.get(prefijo + "_MANO"), 5);
+        ManoJugador manoReconstruida = ManoJugador.desdeArray(manoArr);
+        
+        for (int i = 0; i < manoArr.length; i++) {
+            if (manoArr[i] != null) manoArr[i].setEstado(Estado.MANO);
+        }
+        for (int i = 0; i < manoArr.length; i++) {
+            if (manoArr[i] != null) {
+                j.getManoLinkedList().agregarCarta(manoArr[i]);
+            }
         }
 
-        // Reconstruir campo monstruos
-        reconstruirCampoMonstruos(
-            datos.get(prefijo + "_CAMPO"), j.getCampo(), mapaCartas);
+        reconstruirCampoMonstruos(datos.get(prefijo + "_CAMPO"), j.getCampo());
+        reconstruirCampoMagias(datos.get(prefijo + "_MAGIAS"), j.getCampoMagias());
 
-        // Reconstruir campo magias
-        reconstruirCampoMagias(
-            datos.get(prefijo + "_MAGIAS"), j.getCampoMagias(), mapaCartas);
-
-        // Reconstruir cementerio
-        Carta[] cem = reconstruirArreglo(
-            datos.get(prefijo + "_CEMENTERIO"), 25, mapaCartas, false, false);
+        Carta[] cem = reconstruirArreglo(datos.get(prefijo + "_CEMENTERIO"), 25);
         for (int i = 0; i < cem.length; i++) {
             j.getCementerio()[i] = cem[i];
             if (cem[i] != null) cem[i].setEstado(Estado.CEMENTERIO);
         }
 
-        // Flags
         j.setAtaqueNegado(     Boolean.parseBoolean(datos.get(prefijo + "_ATAQUE_NEGADO")));
         j.setTrampasBloqueadas(Boolean.parseBoolean(datos.get(prefijo + "_TRAMPAS_BLOQUEADAS")));
         j.setMagiaBloqueada(   Boolean.parseBoolean(datos.get(prefijo + "_MAGIA_BLOQUEADA")));
@@ -196,30 +190,26 @@ public class GestorArchivos {
         return j;
     }
 
-    private static Carta[] reconstruirArreglo(String valor, int tamanio,
-                                               Map<String, Carta> mapaCartas,
-                                               boolean ignorado1, boolean ignorado2) {
+    private static Carta[] reconstruirArreglo(String valor, int tamanio) {
         Carta[] arreglo = new Carta[tamanio];
         if (valor == null || valor.isEmpty()) return arreglo;
 
         String[] partes = valor.split("\\|", -1);
         for (int i = 0; i < partes.length && i < tamanio; i++) {
             if (!partes[i].equals("VACIO")) {
-                arreglo[i] = clonarCarta(mapaCartas.get(partes[i]));
+                arreglo[i] = clonarCarta(REGISTRO.buscarPorNombre(partes[i]));
             }
         }
         return arreglo;
     }
 
-    private static void reconstruirCampoMonstruos(String valor, Carta[] campo,
-                                                   Map<String, Carta> mapaCartas) {
+    private static void reconstruirCampoMonstruos(String valor, Carta[] campo) {
         if (valor == null || valor.isEmpty()) return;
         String[] partes = valor.split("\\|", -1);
         for (int i = 0; i < partes.length && i < campo.length; i++) {
             if (!partes[i].equals("VACIO")) {
-                // formato: nombre:POSICION:paralizado:yaAtaco
                 String[] sub = partes[i].split(":", -1);
-                Carta c = clonarCarta(mapaCartas.get(sub[0]));
+                Carta c = clonarCarta(REGISTRO.buscarPorNombre(sub[0]));
                 if (c instanceof Mounstro) {
                     Mounstro m = (Mounstro) c;
                     m.setPosicion(sub[1].equals("ATAQUE") ? Posicion.ATAQUE : Posicion.DEFENSA);
@@ -232,15 +222,13 @@ public class GestorArchivos {
         }
     }
 
-    private static void reconstruirCampoMagias(String valor, Carta[] campo,
-                                                Map<String, Carta> mapaCartas) {
+    private static void reconstruirCampoMagias(String valor, Carta[] campo) {
         if (valor == null || valor.isEmpty()) return;
         String[] partes = valor.split("\\|", -1);
         for (int i = 0; i < partes.length && i < campo.length; i++) {
             if (!partes[i].equals("VACIO")) {
-                // formato: nombre:visible
                 String[] sub = partes[i].split(":", 2);
-                Carta c = clonarCarta(mapaCartas.get(sub[0]));
+                Carta c = clonarCarta(REGISTRO.buscarPorNombre(sub[0]));
                 if (c != null) {
                     c.setVisible(Boolean.parseBoolean(sub[1]));
                     c.setEstado(Estado.CAMPO);
@@ -261,7 +249,6 @@ public class GestorArchivos {
             new FileWriter(ARCHIVO_RESULTADOS, true)); // true = append
 
         String fecha = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
-        // formato: fecha|j1|j2|ganador|turnos|j1:vida|j2:vida
         bw.write(fecha + "|" + nombreJ1 + "|" + nombreJ2 + "|"
                + ganador + "|" + turnos + "|"
                + nombreJ1 + ":" + vidaJ1 + "|"
@@ -301,8 +288,6 @@ public class GestorArchivos {
         int totalPartidas = resultados.size();
 
         for (String[] r : resultados) {
-            // r[0]=fecha, r[1]=j1, r[2]=j2, r[3]=ganador, r[4]=turnos
-            // r[5]=j1:vida, r[6]=j2:vida
             if (r.length < 7) continue;
 
             String j1      = r[1];
@@ -310,16 +295,13 @@ public class GestorArchivos {
             String ganador = r[3];
             int    turnos  = Integer.parseInt(r[4]);
 
-            // Registrar jugadores
             if (!victorias.containsKey(j1)) { victorias.put(j1, 0); derrotas.put(j1, 0); }
             if (!victorias.containsKey(j2)) { victorias.put(j2, 0); derrotas.put(j2, 0); }
 
-            // Sumar victoria/derrota
             victorias.put(ganador, victorias.getOrDefault(ganador, 0) + 1);
             String perdedor = ganador.equals(j1) ? j2 : j1;
             derrotas.put(perdedor, derrotas.getOrDefault(perdedor, 0) + 1);
 
-            // Partida más larga
             if (turnos > maxTurnos) {
                 maxTurnos = turnos;
                 partidaMasLarga = r[0] + " — " + j1 + " vs " + j2
@@ -327,7 +309,6 @@ public class GestorArchivos {
             }
         }
 
-        // Construir el texto de estadísticas
         StringBuilder sb = new StringBuilder();
         sb.append("═══════════════════════════════\n");
         sb.append("      ESTADÍSTICAS HISTÓRICAS\n");
@@ -369,15 +350,6 @@ public class GestorArchivos {
     // ─────────────────────────────────────────────────────────────────
     //  UTILIDADES
     // ─────────────────────────────────────────────────────────────────
-
-    /** Construye un mapa nombre carta con todas las cartas del juego. */
-    private static Map<String, Carta> construirMapaCartas() {
-        Map<String, Carta> mapa = new HashMap<>();
-        for (Carta c : FabricaCartas.crearCartas()) {
-            mapa.put(c.getNombre(), c);
-        }
-        return mapa;
-    }
 
     /**
      * Crea una nueva instancia de la carta a partir del prototipo del mapa.

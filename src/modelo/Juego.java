@@ -2,6 +2,7 @@ package modelo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import modelo.estructuras.MazoBaraja;
 
 
 public class Juego {
@@ -11,16 +12,16 @@ public class Juego {
         ArrayList<Carta> pool = FabricaCartas.crearCartas();
         Collections.shuffle(pool);
 
-        Carta[] baraja1 = new Carta[25];
-        Carta[] baraja2 = new Carta[25];
+        MazoBaraja mazo1 = new MazoBaraja();
+        MazoBaraja mazo2 = new MazoBaraja();
 
-        for (int i = 0; i < 50; i++) {
-            if (i < 25) baraja1[i] = pool.get(i);
-            else        baraja2[i - 25] = pool.get(i);
+        for (int i = 0; i < 50 && i < pool.size(); i++) {
+            if (i < 25) mazo1.agregarCarta(pool.get(i));
+            else        mazo2.agregarCarta(pool.get(i));
         }
 
-        Jugador j1 = new Jugador(nombre1, baraja1);
-        Jugador j2 = new Jugador(nombre2, baraja2);
+        Jugador j1 = new Jugador(nombre1, mazo1);
+        Jugador j2 = new Jugador(nombre2, mazo2);
 
         // Repartir mano inicial (5 cartas)
         for (int i = 0; i < 5; i++) {
