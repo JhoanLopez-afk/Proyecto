@@ -1,0 +1,3 @@
+2026-06-07 22:36|Sergio|Jhoan|Jhoan|7|Sergio:-1000|Jhoan:8000
+2026-06-08 10:18|Sergio|Jhoan|Sergio|6|Sergio:8000|Jhoan:-100
+2026-06-08 10:22|Sergio|Camilo|Sergio|6|Sergio:8000|Camilo:-100
