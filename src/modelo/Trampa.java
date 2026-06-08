@@ -11,7 +11,6 @@ public class Trampa extends Carta implements Activable {
         super(nombre, tipo, visible, efecto, estado);
     }
 
-
     @Override
     public void ejecutarEfecto(Jugador defensor, Jugador atacante) {
         String nombre = getNombre();
@@ -40,8 +39,6 @@ public class Trampa extends Carta implements Activable {
         }
     }
 
-
-
     /** Círculo Atahechizos: paraliza el monstruo en el índice dado. */
     public void ejecutarCirculoAtahechizos(Jugador oponente, int indice) {
         if (indice >= 0 && indice < oponente.getCampo().length
@@ -50,7 +47,11 @@ public class Trampa extends Carta implements Activable {
         }
     }
 
-    /** Artilugio de Evacuación Compulsiva: devuelve monstruo a la mano. */
+    /**
+     * Artilugio de Evacuación Compulsiva: devuelve monstruo a la mano.
+     * CORRECCIÓN: usa getManoLinkedList().agregarCarta() en vez de
+     * getMano()[i] = carta (que escribiría en una copia descartada).
+     */
     public void ejecutarArtilugio(Jugador objetivo, int indice) {
         if (indice < 0 || indice >= objetivo.getCampo().length
                 || !(objetivo.getCampo()[indice] instanceof Mounstro)) return;
@@ -58,21 +59,23 @@ public class Trampa extends Carta implements Activable {
         Carta carta = objetivo.getCampo()[indice];
         objetivo.getCampo()[indice] = null;
         ((Mounstro) carta).setParalizado(false);
+        carta.setEstado(Estado.MANO);
 
-        for (int i = 0; i < objetivo.getMano().length; i++) {
-            if (objetivo.getMano()[i] == null) {
-                objetivo.getMano()[i] = carta;
-                carta.setEstado(Estado.MANO);
-                return;
-            }
-        }
+        // CORRECCIÓN: agregar directamente a la LinkedList real
+        objetivo.getManoLinkedList().agregarCarta(carta);
     }
 
-    /** Disruptor Mágico: descarta una carta de la mano del defensor y bloquea la mágica rival. */
+    /**
+     * Disruptor Mágico: descarta una carta de la mano del defensor.
+     * CORRECCIÓN: usa getManoLinkedList().vaciarPosicion() en vez de
+     * getMano()[idx] = null (que modificaría una copia).
+     */
     public void ejecutarDisruptorMagico(Jugador defensor, int indiceDescarte, Jugador atacante) {
+        // Obtener la carta del arreglo de vista para saber cuál es
         Carta c = defensor.getMano()[indiceDescarte];
         if (c != null) {
-            defensor.getMano()[indiceDescarte] = null;
+            // CORRECCIÓN: vaciar en la LinkedList real, no en la copia
+            defensor.getManoLinkedList().vaciarPosicion(indiceDescarte);
             defensor.enviarAlCementerio(c);
         }
         atacante.setMagiaBloqueada(true);
@@ -94,8 +97,6 @@ public class Trampa extends Carta implements Activable {
         jugador.setLlamadaDeLosCondenados(espacioMonstruo);
         jugador.setIndiceTrampaLlamada(espacioMagia);
     }
-
-
 
     private void destruirMonstruosEnAtaque(Jugador atacante) {
         for (int i = 0; i < atacante.getCampo().length; i++) {
