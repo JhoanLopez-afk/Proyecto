@@ -3,14 +3,19 @@ package modelo;
 import modelo.enums.Estado;
 import modelo.enums.TipoCarta;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-
 public class FabricaCartas {
+
+    private static final String ARCHIVO = "src/cartas.txt";
 
     public static ArrayList<Carta> crearCartas() {
         ArrayList<Carta> cartas = new ArrayList<>();
 
+        /*
         // ── Monstruos ────────────────────────────────────────────────
         cartas.add(new Mounstro("Abismo Reluciente",          (short)1600,(short)1800, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Cuatro,  true, "Utiliza tanto los poderes de la luz como los de la oscuridad",                                                                             Estado.BARAJA));
         cartas.add(new Mounstro("Bruja Oscura Dunames",       (short)1800,(short)1050, TipoCarta.MOUNSTRUO, Mounstro.Estrellas.Cuatro,  true, "Aun cuando las posibilidades estén en su contra, esta brava hada avanzará.",                                                               Estado.BARAJA));
@@ -67,7 +72,50 @@ public class FabricaCartas {
         cartas.add(new Trampa("Artilugio de Evacuación Compulsiva",  TipoCarta.TRAMPA, true, "Devuelve un monstruo del campo a la mano.",                      Estado.BARAJA));
         cartas.add(new Trampa("Agujero Trampa Sin Fondo",            TipoCarta.TRAMPA, true, "Destruye monstruos con ATK ≥ 1500 al ser invocados.",            Estado.BARAJA));
         cartas.add(new Trampa("Juicio Solemne",                      TipoCarta.TRAMPA, true, "Paga mitad de LP; niega una invocación o activación.",           Estado.BARAJA));
+        */
+
+        cargarTxt(cartas);
 
         return cartas;
+    }
+
+    private static void cargarTxt(ArrayList<Carta> cartas) {
+        try (BufferedReader br = new BufferedReader(new FileReader(ARCHIVO))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                linea = linea.trim();
+                if (linea.isEmpty() || linea.startsWith("#")) continue;
+
+                String[] p = linea.split("\\|");
+                String tipo = p[0];
+                String nombre = p[1];
+
+                Carta carta = null;
+
+                if (tipo.equals("MONSTRUO")) {
+                    short ataque = Short.parseShort(p[2]);
+                    short defensa = Short.parseShort(p[3]);
+                    Mounstro.Estrellas estrellas = Mounstro.Estrellas.valueOf(p[4]);
+                    String efecto = p[5];
+
+                    Class<?> clase = Class.forName("modelo.Mounstro");
+                    Constructor<?> ctor = clase.getDeclaredConstructor(String.class, short.class, short.class, TipoCarta.class, Mounstro.Estrellas.class, boolean.class, String.class, Estado.class);
+                    carta = (Carta) ctor.newInstance(nombre, ataque, defensa, TipoCarta.MOUNSTRUO, estrellas, true, efecto, Estado.BARAJA);
+
+                } else if (tipo.equals("MAGIA") || tipo.equals("TRAMPA")) {
+                    String efecto = p[2];
+                    String nombreClase = tipo.equals("MAGIA") ? "modelo.Magia" : "modelo.Trampa";
+                    TipoCarta tipoCarta = tipo.equals("MAGIA") ? TipoCarta.MAGICA : TipoCarta.TRAMPA;
+
+                    Class<?> clase = Class.forName(nombreClase);
+                    Constructor<?> ctor = clase.getDeclaredConstructor(String.class, TipoCarta.class, boolean.class, String.class, Estado.class);
+                    carta = (Carta) ctor.newInstance(nombre, tipoCarta, true, efecto, Estado.BARAJA);
+                }
+
+                if (carta != null) cartas.add(carta);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al leer " + ARCHIVO + ": " + e.getMessage());
+        }
     }
 }

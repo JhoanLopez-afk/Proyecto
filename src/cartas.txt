@@ -1,0 +1,57 @@
+# Monstruos: MONSTRUO|nombre|ataque|defensa|estrellas|efecto
+# Mágicas:   MAGIA|nombre|efecto
+# Trampas:   TRAMPA|nombre|efecto
+
+MONSTRUO|Abismo Reluciente|1600|1800|Cuatro|Utiliza tanto los poderes de la luz como los de la oscuridad
+MONSTRUO|Bruja Oscura Dunames|1800|1050|Cuatro|Aun cuando las posibilidades estén en su contra, esta brava hada avanzará.
+MONSTRUO|Buey de Barbacoa|1000|1000|Tres|Un monstruoso buey con una lengua muy fina.
+MONSTRUO|Apligarto|1500|0|Cuatro|Un dragón antropomórfico nacido del alma de un dragón.
+MONSTRUO|Cementerio de Mamuts|1200|800|Tres|Un mamut que protege las tumbas de su manada.
+MONSTRUO|Cerebro Antiguo|1000|700|Tres|Una hada caída que es poderosa en la oscuridad.
+MONSTRUO|Ave de fe|1500|1100|Cuatro|Este pájaro de cola larga ciega a sus enemigos con una luz mística.
+MONSTRUO|Asesino de espada|1450|1500|Cinco|Un motor letal de destrucción que empuña dos hojas bien afiladas.
+MONSTRUO|Brazo Derecho del prohibido|200|300|Una|Un brazo derecho prohibido, sellado mágicamente.
+MONSTRUO|Brazo Izquierdo del prohibido|200|300|Una|Un brazo izquierdo prohibido, sellado mágicamente.
+MONSTRUO|Pierna izquierda del prohibido|200|300|Una|Una pierna izquierda prohibida, sellada mágicamente.
+MONSTRUO|Pierna Derecha del prohibido|200|300|Una|Una pierna derecha prohibida, sellada mágicamente.
+MONSTRUO|Bebé Dragón|1200|700|Tres|Mucho más que sólo un niño, este dragón está dotado de un poder sin descubrir.
+MONSTRUO|Devorador de aire|2100|1600|Seis|Un monstruo que se alimenta de oxígeno.
+MONSTRUO|Dama de la fé|1100|800|Cuatro|Calma las almas de los demás entonando un misterioso hechizo.
+MONSTRUO|El caballero ilusorio|1500|1600|Cuatro|Llevando ropas muy raras, este caballero es muy voluble.
+MONSTRUO|Gai el caballo feroz|2300|2100|Seis|Un caballero cuyo caballo galopa más rápido que el viento.
+MONSTRUO|Dragón Negro de Ojos Rojos|2400|2000|Siete|Un dragón feroz con un ataque mortal.
+MONSTRUO|Mago oscuro|2500|2100|Siete|El más grande de los magos en cuanto al ataque y la defensa.
+MONSTRUO|Dragón Blanco de Ojos Azules|3000|2500|Ocho|Este legendario dragón es una poderosa máquina de destrucción. Virtualmente invencible.
+MONSTRUO|M-Guerrero 1|1000|500|Tres|Especializado en ataques combinados.
+MONSTRUO|Cráneo convocado|2500|1200|Seis|Un demonio con poderes oscuros para confundir al enemigo.
+MONSTRUO|Duende Místico|800|2000|Cuatro|Un elfo delicado que carece de ataque pero que tiene una defensa fantástica.
+MONSTRUO|Guerrero Lagarto Antiguo|1400|1100|Cuatro|Antes del amanecer de la humanidad, este guerrero lagarto gobernaba.
+MONSTRUO|insecto básico|500|700|Dos|Generalmente se le encuentra viajando en enjambres.
+MONSTRUO|Madoor de Aqua|1200|2000|Cuatro|Un mago de las aguas que conjura un muro líquido.
+MONSTRUO|Nemuriko|800|700|Tres|Una criatura de apariencia infantil que controla a un demonio del sueño.
+MONSTRUO|Pavo Real|1700|1500|Cinco|Un gran pavo real que lanza plumas en un ataque letal.
+MONSTRUO|Tortuga Isla|1100|2000|Cuatro|Una tortuga enorme que es a menudo confundida con una isla.
+MONSTRUO|Soldado cientifico|800|800|Dos|Soldado con tecnología avanzada.
+
+MAGIA|Olla de la codicia|Roba dos cartas.
+MAGIA|Monstruo renacido|Selecciona 1 monstruo en cualquier Cementerio e invócalo.
+MAGIA|Agujero Oscuro|Destruye todos los monstruos en el campo.
+MAGIA|Tifon del espacio Mistico|Selecciona 1 mágica/trampa en el campo; destrúyela.
+MAGIA|Caridad elegante|Roba tres cartas y manda 2 al cementerio.
+MAGIA|Fuerza de Resabastecimiento|Roba 3 cartas y descarta 2 cartas de tu mano al Cementerio.
+MAGIA|Dian Keto, el Señora de la Curación|Aumenta tus LP en 1000 puntos.
+MAGIA|Tormenta Fuerte|Destruye todas las cartas Mágicas y Trampa en el campo.
+MAGIA|Reproduccion de hechizo|Manda al cementerio 2 Mágicas en tu mano.
+MAGIA|Intercambio|Intercambian sus cartas.
+MAGIA|Hinotama|Inflige 500 puntos de daño a tu adversario.
+
+TRAMPA|Fuerza de espejo|Destruye todos los monstruos rivales en posición de Ataque.
+TRAMPA|cilindros mágicos|Inflige daño igual al ATK del monstruo atacante.
+TRAMPA|Negar Ataque|Niega el ataque y termina la Battle Phase.
+TRAMPA|llamada de los condenados|Invoca un monstruo del Cementerio en posición de Ataque.
+TRAMPA|Círculo Atahechizos|Paraliza un monstruo del oponente.
+TRAMPA|Disruptor de Trampa|Niega la activación de una trampa rival.
+TRAMPA|Disruptor Mágico|Niega una mágica rival; descarta 1 carta.
+TRAMPA|Artilugio de Evacuación Compulsiva|Devuelve un monstruo del campo a la mano.
+TRAMPA|Agujero Trampa Sin Fondo|Destruye monstruos con ATK >= 1500 al ser invocados.
+TRAMPA|Juicio Solemne|Paga mitad de LP; niega una invocación o activación.
